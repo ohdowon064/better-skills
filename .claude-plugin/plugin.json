@@ -1,5 +1,18 @@
 {
-  "name": "better-skills",
-  "description": "Claude Code를 위한 자율 개발 파이프라인 스킬 시스템. 기획서 입력 → 계획 수립 → TDD 개발 → 검증 → 스킬 유지보수까지 자동 실행.",
-  "version": "1.0.0"
+    "name": "better-skills",
+    "description": "Autonomous dev pipeline for Claude Code. Spec in → Plan → TDD → Verify → Skill maintenance, all automated.",
+    "version": "1.0.0",
+    "author": {
+        "name": "dowon",
+        "url": "https://github.com/ohdowon064"
+    },
+    "license": "MIT",
+    "keywords": [
+        "claude-plugin",
+        "tdd",
+        "pipeline",
+        "autonomous-development",
+        "verification",
+        "skill-management"
+    ]
 }
