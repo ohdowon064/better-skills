@@ -1,6 +1,6 @@
 # better-skills
 
-Claude Code를 위한 자율 개발 파이프라인 스킬 시스템입니다.
+Claude Code 플러그인 형태의 자율 개발 파이프라인 스킬 시스템입니다.
 
 ## Development Workflow
 

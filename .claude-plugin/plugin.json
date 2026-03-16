@@ -1,0 +1,5 @@
+{
+  "name": "better-skills",
+  "description": "Claude Code를 위한 자율 개발 파이프라인 스킬 시스템. 기획서 입력 → 계획 수립 → TDD 개발 → 검증 → 스킬 유지보수까지 자동 실행.",
+  "version": "1.0.0"
+}

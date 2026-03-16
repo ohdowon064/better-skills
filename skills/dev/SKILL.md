@@ -311,12 +311,12 @@ Phase 2 검증이 3회 연속 실패했습니다.
 
 | File | Purpose |
 |------|---------|
-| `.claude/skills/feature-planner/SKILL.md` | Step 2, 4: 계획 수립 및 완료 처리 |
-| `.claude/skills/verify-implementation/SKILL.md` | Step 3c: Phase별 검증 실행 |
-| `.claude/skills/manage-skills/SKILL.md` | Step 5: 스킬 유지보수 |
-| `.claude/agents/codebase-scanner.md` | feature-planner/manage-skills가 사용 |
-| `.claude/agents/plan-writer.md` | feature-planner가 사용 |
-| `.claude/agents/skill-writer.md` | feature-planner/manage-skills가 사용 |
-| `.claude/agents/test-runner.md` | verify-implementation이 사용 |
+| `skills/feature-planner/SKILL.md` | Step 2, 4: 계획 수립 및 완료 처리 |
+| `skills/verify-implementation/SKILL.md` | Step 3c: Phase별 검증 실행 |
+| `skills/manage-skills/SKILL.md` | Step 5: 스킬 유지보수 |
+| `agents/codebase-scanner.md` | feature-planner/manage-skills가 사용 |
+| `agents/plan-writer.md` | feature-planner가 사용 |
+| `agents/skill-writer.md` | feature-planner/manage-skills가 사용 |
+| `agents/test-runner.md` | verify-implementation이 사용 |
 | `docs/plans/PLAN_*.md` | 계획 문서 (생성/읽기/업데이트) |
 | `CLAUDE.md` | 프로젝트 가이드라인 |

@@ -127,7 +127,7 @@ grep -A2 "File(s):" docs/plans/PLAN_search.md | grep '`' | sed 's/.*`\(.*\)`.*/\
 
 계획 수립에 앞서 프로젝트의 현재 상태를 파악한다. **`codebase-scanner`** Subagent를 실행하여 프로젝트를 분석한다.
 
-> **사용하는 Subagent**: `.claude/agents/codebase-scanner.md`
+> **사용하는 Subagent**: `agents/codebase-scanner.md`
 
 #### 레포 타입 판별
 
@@ -252,7 +252,7 @@ Phase N: [이름]
 
 승인된 Phase 분해를 바탕으로 **`plan-writer`** Subagent를 실행하여 계획 문서를 생성한다.
 
-> **사용하는 Subagent**: `.claude/agents/plan-writer.md`
+> **사용하는 Subagent**: `agents/plan-writer.md`
 
 `plan-writer`에게 다음 정보를 전달한다:
 1. 프로젝트 컨텍스트 (Step 0 결과)
@@ -278,7 +278,7 @@ Phase N: [이름]
 
 각 Phase마다 **`skill-writer`** Subagent를 1개씩 실행하여 병렬 생성한다 (최대 7개 동시).
 
-> **사용하는 Subagent**: `.claude/agents/skill-writer.md`
+> **사용하는 Subagent**: `agents/skill-writer.md`
 
 각 `skill-writer`에게 다음 정보를 전달한다:
 1. **모드**: CREATE
@@ -386,12 +386,12 @@ BRAND_NEW 레포에서는 AskUserQuestion으로 사용자에게 커버리지 목
 
 | File | Purpose |
 |------|---------|
-| `.claude/skills/dev/SKILL.md` | 전체 파이프라인 오케스트레이터 (이 스킬을 자동 호출) |
-| `.claude/skills/feature-planner/plan-template.md` | 계획 문서 생성 템플릿 |
-| `.claude/skills/verify-implementation/SKILL.md` | 검증 실행 스킬 (생성된 verify 스킬 등록) |
-| `.claude/skills/manage-skills/SKILL.md` | 스킬 유지보수 (생성된 verify 스킬 등록) |
-| `.claude/agents/codebase-scanner.md` | Step 0 Subagent: 프로젝트 컨텍스트 통합 분석 |
-| `.claude/agents/plan-writer.md` | Step 4 Subagent: 계획 문서 작성 |
-| `.claude/agents/skill-writer.md` | Step 5 Subagent: verify 스킬 생성 (병렬) |
+| `skills/dev/SKILL.md` | 전체 파이프라인 오케스트레이터 (이 스킬을 자동 호출) |
+| `skills/feature-planner/plan-template.md` | 계획 문서 생성 템플릿 |
+| `skills/verify-implementation/SKILL.md` | 검증 실행 스킬 (생성된 verify 스킬 등록) |
+| `skills/manage-skills/SKILL.md` | 스킬 유지보수 (생성된 verify 스킬 등록) |
+| `agents/codebase-scanner.md` | Step 0 Subagent: 프로젝트 컨텍스트 통합 분석 |
+| `agents/plan-writer.md` | Step 4 Subagent: 계획 문서 작성 |
+| `agents/skill-writer.md` | Step 5 Subagent: verify 스킬 생성 (병렬) |
 | `CLAUDE.md` | 프로젝트 가이드라인 (Skills 테이블 업데이트) |
 | `docs/plans/PLAN_*.md` | 생성된 계획 문서들 |

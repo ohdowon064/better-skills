@@ -131,7 +131,7 @@ grep -l "🔄 In Progress" docs/plans/PLAN_*.md 2>/dev/null
 
 독립 스킬 각각에 대해 **`test-runner`** Subagent를 실행한다. 독립 스킬은 **동시에** 실행하여 검증 시간을 대폭 단축한다.
 
-> **사용하는 Subagent**: `.claude/agents/test-runner.md`
+> **사용하는 Subagent**: `agents/test-runner.md`
 
 각 `test-runner`에게 다음 정보를 전달한다:
 1. 해당 verify 스킬의 SKILL.md 경로
@@ -407,10 +407,10 @@ AskUserQuestion으로 사용자에게 확인한다:
 
 | File | Purpose |
 |------|---------|
-| `.claude/skills/dev/SKILL.md` | 전체 파이프라인 오케스트레이터 (이 스킬을 자동 호출) |
-| `.claude/skills/manage-skills/SKILL.md` | 스킬 유지보수 (실행 대상 목록 동기화) |
-| `.claude/skills/feature-planner/SKILL.md` | 계획 수립 (verify 스킬 생성 트리거) |
-| `.claude/agents/test-runner.md` | Subagent: 개별 verify 스킬 실행 (병렬) |
+| `skills/dev/SKILL.md` | 전체 파이프라인 오케스트레이터 (이 스킬을 자동 호출) |
+| `skills/manage-skills/SKILL.md` | 스킬 유지보수 (실행 대상 목록 동기화) |
+| `skills/feature-planner/SKILL.md` | 계획 수립 (verify 스킬 생성 트리거) |
+| `agents/test-runner.md` | Subagent: 개별 verify 스킬 실행 (병렬) |
 | `.claude/verify-history.json` | 검증 실행 이력 JSON (최근 100건 rotate, 스킬 효과성 추적) |
 | `CLAUDE.md` | 프로젝트 가이드라인 |
 | `docs/plans/PLAN_*.md` | 계획 문서 (Verification Status 업데이트 대상) |
