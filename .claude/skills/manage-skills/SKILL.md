@@ -165,6 +165,17 @@ AskUserQuestion을 사용하여 확인한다.
 
 ### Step 5: Update Existing Skills (Subagent)
 
+**5a. 스냅샷 사전 확보 (version-manager):**
+
+업데이트 대상 스킬에 대해 먼저 **`version-manager`** Subagent를 실행하여 현재 버전의 스냅샷을 `.claude/skill-versions/`에 보관한다.
+
+> **사용하는 Subagent**: `.claude/agents/version-manager.md`
+> **모드**: snapshot (업데이트 대상 스킬 이름 목록 전달)
+
+이 단계가 완료된 후에만 skill-writer를 실행한다. 이로써 `.claude/skill-versions/` 디렉토리에 대한 쓰기 책임이 version-manager로 단일화되어 race condition이 방지된다.
+
+**5b. 스킬 업데이트 (skill-writer):**
+
 사용자가 업데이트를 승인한 각 스킬에 대해 **`skill-writer`** Subagent를 UPDATE 모드로 실행한다.
 
 > **사용하는 Subagent**: `.claude/agents/skill-writer.md`

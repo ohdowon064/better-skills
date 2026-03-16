@@ -104,7 +104,7 @@
         "File-to-Skill Mapping 테이블이 생성되어 UNCOVERED 파일이 식별됨",
         "CREATE vs UPDATE 결정 트리가 적용되어 제안이 생성됨",
         "AskUserQuestion으로 사용자 승인을 받은 후에만 스킬이 생성/수정됨",
-        "skill-writer UPDATE 시 기존 SKILL.md 스냅샷이 .claude/skill-versions/에 보관됨",
+        "skill-writer UPDATE 전에 version-manager가 snapshot 모드로 실행되어 기존 SKILL.md 스냅샷이 .claude/skill-versions/에 보관됨",
         "SSOT 테이블과 CLAUDE.md가 업데이트됨",
         "완료 후 /verify-implementation 추천 메시지가 표시됨"
       ]
@@ -223,10 +223,10 @@
       "id": 16,
       "skill": "manage-skills",
       "prompt": "verify-api 스킬 좀 수정해줘. Related Files에 새 핸들러 파일 추가해야 해.",
-      "expected_output": "skill-writer UPDATE 모드 실행 전에 기존 SKILL.md 스냅샷이 .claude/skill-versions/에 자동 보관됨, 수정 완료 후 SSOT 테이블 업데이트, /verify-implementation 추천",
+      "expected_output": "version-manager가 snapshot 모드로 실행되어 기존 SKILL.md 스냅샷 보관 후, skill-writer UPDATE 모드로 수정 수행, SSOT 테이블 업데이트, /verify-implementation 추천",
       "files": [],
       "assertions": [
-        "skill-writer UPDATE 실행 전에 .claude/skill-versions/verify-api/SKILL_*.md 스냅샷이 생성됨",
+        "version-manager가 snapshot 모드로 실행되어 .claude/skill-versions/verify-api/SKILL_*.md 스냅샷이 생성됨 (skill-writer가 아닌 version-manager가 담당)",
         "기존 검사가 제거되지 않고 Related Files에 새 파일만 추가됨",
         "SSOT 테이블이 업데이트됨",
         "/verify-implementation 추천 메시지가 표시됨",

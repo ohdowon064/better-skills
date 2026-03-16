@@ -44,20 +44,7 @@ verify 스킬의 SKILL.md를 생성하거나 기존 스킬을 업데이트한다
 - 수정할 SKILL.md 경로
 - 수정 내용 (추가할 파일, 업데이트할 패턴, 변경된 값 등)
 
-**스냅샷 보관 (버전 관리):**
-
-수정 전에 기존 SKILL.md의 스냅샷을 `.claude/skill-versions/`에 보관한다:
-
-```bash
-# 스냅샷 디렉토리 생성
-mkdir -p .claude/skill-versions/<skill-name>/
-
-# 타임스탬프 기반 스냅샷 저장
-cp .claude/skills/<skill-name>/SKILL.md \
-   .claude/skill-versions/<skill-name>/SKILL_$(date +%Y%m%d_%H%M%S).md
-```
-
-스냅샷 파일명 형식: `SKILL_20260316_143000.md`
+> **스냅샷은 호출자(manage-skills)가 version-manager를 통해 사전에 확보한다.** skill-writer는 스냅샷을 직접 생성하지 않는다.
 
 **규칙:**
 - 작동하는 기존 검사는 절대 제거하지 않는다 (추가/수정만)
@@ -65,7 +52,6 @@ cp .claude/skills/<skill-name>/SKILL.md \
 - 새 탐지 명령어 추가
 - 삭제 확인된 파일의 참조 제거
 - 변경된 값 업데이트
-- UPDATE 전 반드시 스냅샷을 먼저 저장한다
 
 ## 결과
 
