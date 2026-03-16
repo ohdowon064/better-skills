@@ -27,13 +27,12 @@ argument-hint: "[선택: phase-1, phase-2, ... 또는 --current-phase]"
 
 ## Target Skills
 
-실행 대상 스킬 목록은 **`manage-skills/SKILL.md`의 Registered Verify Skills 테이블**을 단일 소스(SSOT)로 참조한다.
+실행 대상 스킬 목록은 **`.claude/skill-registry.json`**을 단일 소스(SSOT)로 참조한다.
 
 **스킬 로딩 절차:**
-1. `.claude/skills/manage-skills/SKILL.md`를 읽는다
-2. "Registered Verify Skills" 섹션의 테이블을 파싱한다
-3. 라이프사이클이 ACTIVE 또는 CREATED인 스킬만 실행 대상에 포함한다
-4. ARCHIVED 스킬은 제외한다
+1. `.claude/skill-registry.json`을 읽는다
+2. `skills` 배열에서 `lifecycle`이 `ACTIVE` 또는 `CREATED`인 항목만 필터한다
+3. `ARCHIVED` 스킬은 제외한다
 
 **SSOT를 읽을 수 없는 경우 (파일 없음/파싱 실패):**
 폴백으로 파일 시스템에서 직접 스캔한다:

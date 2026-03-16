@@ -59,7 +59,7 @@ ls docs/plans/PLAN_*.md 2>/dev/null
 **결과물:**
 - `docs/plans/PLAN_<name>.md` 생성됨
 - `verify-phase-N-*` 스킬 생성됨
-- SSOT 레지스트리 업데이트됨
+- skill-registry.json 업데이트됨
 
 ### Step 2.5: 복수 PLAN 파일 충돌 감지
 
@@ -184,7 +184,7 @@ PLAN 문서의 해당 Phase Tasks 섹션을 읽고, 순서대로 수행한다:
 - PLAN 문서 Status를 ✅ Completed로 변경
 - verify-phase-N-* 스킬을 범용 verify-* 스킬로 GRADUATE
 - 기존 Phase 스킬 ARCHIVED
-- SSOT 레지스트리 업데이트
+- skill-registry.json 업데이트
 
 ### Step 5: 스킬 유지보수 (manage-skills 자동 호출)
 
@@ -194,7 +194,7 @@ PLAN 문서의 해당 Phase Tasks 섹션을 읽고, 순서대로 수행한다:
 - 전체 변경 파일의 스킬 커버리지 점검
 - 커버되지 않은 파일에 대한 새 스킬 제안
 - 스킬 버전 정리
-- SSOT 테이블 정합성 검증
+- skill-registry.json 정합성 검증
 
 ### Step 6: 최종 보고
 

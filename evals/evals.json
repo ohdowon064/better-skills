@@ -14,7 +14,7 @@
         "각 Phase에 RED/GREEN/REFACTOR 단계가 포함됨",
         "Quality Gate의 명령어가 플레이스홀더가 아닌 감지된 실제 명령어임",
         "Phase 수만큼의 verify-phase-N-* 스킬 디렉토리가 생성됨",
-        "manage-skills/SKILL.md의 Registered Verify Skills 테이블에 새 스킬이 등록됨",
+        "skill-registry.json의 skills 배열에 새 스킬이 등록됨",
         "AskUserQuestion으로 사용자 승인을 받은 후에만 문서가 생성됨"
       ]
     },
@@ -45,7 +45,7 @@
         "새 Phase가 Phase 4 위치에 삽입되고 기존 Phase 4 이후가 번호 +1 재정렬됨",
         "새 Phase에 대한 verify-phase-4-* 스킬이 skill-writer로 생성됨",
         "기존 verify-phase-4-* 이후 스킬 이름이 번호 변경에 맞게 업데이트됨",
-        "manage-skills/SKILL.md의 SSOT 테이블이 업데이트됨"
+        "skill-registry.json이 업데이트됨"
       ]
     },
     {
@@ -60,7 +60,7 @@
         "PLAN 문서의 Status가 ✅ Completed로 변경됨",
         "verify-phase-N-* 스킬이 범용 verify-* 스킬로 GRADUATE됨 (Phase 특화 검사 제거)",
         "기존 Phase 스킬의 라이프사이클이 ARCHIVED로 변경됨",
-        "SSOT 테이블과 CLAUDE.md가 업데이트됨"
+        "skill-registry.json과 CLAUDE.md가 업데이트됨"
       ]
     },
     {
@@ -82,10 +82,10 @@
       "id": 6,
       "skill": "verify-implementation",
       "prompt": "전체 검증 돌려줘. 모든 verify 스킬 실행해봐.",
-      "expected_output": "manage-skills SSOT에서 ACTIVE/CREATED 스킬을 읽어 전체 실행, 독립/의존 분류 후 test-runner 병렬 실행, 통합 리포트에 모든 스킬 결과 포함, 이슈 발견 시 수정 옵션 제시, cross-skill 추천",
+      "expected_output": "skill-registry.json에서 ACTIVE/CREATED 스킬을 읽어 전체 실행, 독립/의존 분류 후 test-runner 병렬 실행, 통합 리포트에 모든 스킬 결과 포함, 이슈 발견 시 수정 옵션 제시, cross-skill 추천",
       "files": [],
       "assertions": [
-        "manage-skills/SKILL.md의 SSOT 테이블에서 ACTIVE/CREATED 스킬 목록을 읽음",
+        "skill-registry.json에서 lifecycle이 ACTIVE/CREATED인 스킬 목록을 읽음",
         "독립 스킬은 test-runner로 병렬 실행되고, 의존 스킬은 순차 실행됨",
         "7개 초과 시 7개씩 배치로 나눠 실행됨",
         "이슈 발견 시 AskUserQuestion으로 전체 자동 수정/개별 리뷰/건너뛰기 선택지 제시",
@@ -105,7 +105,7 @@
         "CREATE vs UPDATE 결정 트리가 적용되어 제안이 생성됨",
         "AskUserQuestion으로 사용자 승인을 받은 후에만 스킬이 생성/수정됨",
         "skill-writer UPDATE 전에 version-manager가 snapshot 모드로 실행되어 기존 SKILL.md 스냅샷이 .claude/skill-versions/에 보관됨",
-        "SSOT 테이블과 CLAUDE.md가 업데이트됨",
+        "skill-registry.json과 CLAUDE.md가 업데이트됨",
         "완료 후 /verify-implementation 추천 메시지가 표시됨"
       ]
     },
@@ -120,7 +120,7 @@
         "기본 verify 스킬 세트(build, test, lint) 최소 3개가 제안됨",
         "git history가 있는 경우 프로젝트 도메인별 추가 스킬이 제안됨",
         "AskUserQuestion으로 생성할 스킬을 사용자에게 확인함",
-        "SSOT 테이블의 '(아직 등록된 검증 스킬이 없습니다)' 텍스트가 실제 테이블로 대체됨",
+        "skill-registry.json의 skills 배열이 빈 배열에서 실제 스킬 목록으로 채워짐",
         "/verify-implementation 추천 메시지가 표시됨"
       ]
     },
@@ -131,7 +131,7 @@
       "expected_output": "등록된 스킬 0개 감지, 에러 대신 가이드 메시지 표시 (feature-planner 또는 manage-skills로 스킬 생성 안내), /feature-planner 추천",
       "files": [],
       "assertions": [
-        "SSOT 테이블에서 스킬 0개를 감지하고, 폴백 파일 시스템 스캔에서도 0개를 확인함",
+        "skill-registry.json에서 skills 배열이 비어있음을 감지하고, 폴백 파일 시스템 스캔에서도 0개를 확인함",
         "에러/크래시 없이 가이드 메시지가 표시됨",
         "가이드에 /feature-planner와 /manage-skills 두 가지 경로가 안내됨",
         "/feature-planner 추천 메시지가 표시됨"
@@ -223,12 +223,12 @@
       "id": 16,
       "skill": "manage-skills",
       "prompt": "verify-api 스킬 좀 수정해줘. Related Files에 새 핸들러 파일 추가해야 해.",
-      "expected_output": "version-manager가 snapshot 모드로 실행되어 기존 SKILL.md 스냅샷 보관 후, skill-writer UPDATE 모드로 수정 수행, SSOT 테이블 업데이트, /verify-implementation 추천",
+      "expected_output": "version-manager가 snapshot 모드로 실행되어 기존 SKILL.md 스냅샷 보관 후, skill-writer UPDATE 모드로 수정 수행, skill-registry.json 업데이트, /verify-implementation 추천",
       "files": [],
       "assertions": [
         "version-manager가 snapshot 모드로 실행되어 .claude/skill-versions/verify-api/SKILL_*.md 스냅샷이 생성됨 (skill-writer가 아닌 version-manager가 담당)",
         "기존 검사가 제거되지 않고 Related Files에 새 파일만 추가됨",
-        "SSOT 테이블이 업데이트됨",
+        "skill-registry.json이 업데이트됨",
         "/verify-implementation 추천 메시지가 표시됨",
         "스냅샷 파일명이 SKILL_YYYYMMDD_HHMMSS.md 형식임"
       ]
