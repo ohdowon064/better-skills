@@ -367,6 +367,7 @@ BRAND_NEW 레포에서는 AskUserQuestion으로 사용자에게 커버리지 목
 
 | File | Purpose |
 |------|---------|
+| `.claude/skills/dev/SKILL.md` | 전체 파이프라인 오케스트레이터 (이 스킬을 자동 호출) |
 | `.claude/skills/feature-planner/plan-template.md` | 계획 문서 생성 템플릿 |
 | `.claude/skills/verify-implementation/SKILL.md` | 검증 실행 스킬 (생성된 verify 스킬 등록) |
 | `.claude/skills/manage-skills/SKILL.md` | 스킬 유지보수 (생성된 verify 스킬 등록) |

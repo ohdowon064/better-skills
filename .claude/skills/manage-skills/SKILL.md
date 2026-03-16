@@ -394,6 +394,7 @@ cp .claude/skill-versions/<skill-name>/SKILL_<selected>.md .claude/skills/<skill
 
 | File | Purpose |
 |------|---------|
+| `.claude/skills/dev/SKILL.md` | 전체 파이프라인 오케스트레이터 (이 스킬을 자동 호출) |
 | `.claude/skills/verify-implementation/SKILL.md` | 통합 검증 스킬 (Target Skills 동기화) |
 | `.claude/skills/feature-planner/SKILL.md` | 계획 수립 스킬 (verify 스킬 생성 트리거) |
 | `.claude/skills/manage-skills/SKILL.md` | 이 파일 자체 (Registered Verify Skills 관리) |

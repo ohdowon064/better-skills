@@ -232,6 +232,63 @@
         "/verify-implementation 추천 메시지가 표시됨",
         "스냅샷 파일명이 SKILL_YYYYMMDD_HHMMSS.md 형식임"
       ]
+    },
+    {
+      "id": 17,
+      "skill": "dev",
+      "prompt": "사용자 인증 시스템을 구현해줘. 로그인, 회원가입, 비밀번호 재설정 기능이 필요해.",
+      "expected_output": "전체 파이프라인 자동 실행: feature-planner CREATE → Phase별 TDD 개발(RED→GREEN→REFACTOR) → verify-implementation 자동 호출 → 모든 Phase 완료 후 feature-planner COMPLETE → manage-skills 자동 실행 → 최종 보고서 출력",
+      "files": [],
+      "assertions": [
+        "feature-planner가 CREATE 모드로 자동 실행되어 PLAN 문서가 생성됨",
+        "AskUserQuestion으로 계획 승인을 받은 후에만 TDD 개발이 시작됨",
+        "각 Phase에서 RED(테스트 작성) → GREEN(구현) → REFACTOR(개선) 순서로 수행됨",
+        "각 Phase 완료 후 verify-implementation이 자동으로 호출됨 (사용자가 별도 호출 불필요)",
+        "PLAN 문서의 Phase Status가 자동으로 🔄→✅ 업데이트됨",
+        "모든 Phase 완료 후 feature-planner COMPLETE가 자동 실행됨",
+        "manage-skills가 자동으로 실행되어 스킬 정리가 수행됨",
+        "최종 보고서에 Phase별 결과/TDD 준수/커버리지/검증 시도 횟수가 포함됨"
+      ]
+    },
+    {
+      "id": 18,
+      "skill": "dev",
+      "prompt": "아까 인증 기능 개발하다 중단됐는데 이어서 해줘.",
+      "expected_output": "기존 PLAN_auth.md를 감지하여 마지막 완료 Phase 이후부터 재개, 미완료 Phase의 TDD 개발 → 검증 → 완료 루프를 자동으로 이어서 실행",
+      "files": ["docs/plans/PLAN_auth.md"],
+      "assertions": [
+        "docs/plans/PLAN_*.md에서 기존 PLAN이 감지됨",
+        "PLAN 문서에서 마지막 ✅ Complete Phase를 찾아 다음 Phase부터 재개됨",
+        "🔄 In Progress Phase가 있으면 해당 Phase의 미완료 Task부터 이어서 진행됨",
+        "재개 후에도 Phase별 검증이 자동으로 실행됨"
+      ]
+    },
+    {
+      "id": 19,
+      "skill": "dev",
+      "prompt": "검색 기능 만들어줘. 근데 이미 인증 기능도 개발 중이야.",
+      "expected_output": "기존 PLAN_auth 진행 중을 감지하고 AskUserQuestion으로 기존 PLAN 이어서 진행/새 PLAN 생성 선택, 새 PLAN 선택 시 PLAN_search 생성 후 전체 파이프라인 실행",
+      "files": ["docs/plans/PLAN_auth.md"],
+      "assertions": [
+        "기존 진행 중인 PLAN_auth가 감지됨",
+        "AskUserQuestion으로 '기존 PLAN 이어서 진행' / '새 PLAN 생성' 선택지가 제시됨",
+        "'새 PLAN 생성' 선택 시 feature-planner CREATE로 PLAN_search가 생성됨",
+        "새 PLAN의 Phase별 TDD 개발 → 검증 루프가 자동 실행됨"
+      ]
+    },
+    {
+      "id": 20,
+      "skill": "dev",
+      "prompt": "결제 시스템 만들어줘. Phase 2에서 계속 테스트가 실패해.",
+      "expected_output": "검증 3회 연속 실패 시 블로커 보고, 사용자에게 계속 시도/건너뛰기/중단 선택지 제시, 선택에 따라 진행",
+      "files": [],
+      "assertions": [
+        "Phase 검증 실패 시 자동 수정을 시도함",
+        "3회 연속 실패 시 블로커 보고가 사용자에게 표시됨",
+        "마지막 실패 사유가 구체적으로 명시됨",
+        "AskUserQuestion으로 계속 시도/건너뛰기/중단 선택지가 제시됨",
+        "'중단' 선택 시 현재 상태가 저장되어 나중에 /dev PLAN_<name>으로 재개 가능"
+      ]
     }
   ]
 }

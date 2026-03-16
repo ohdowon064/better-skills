@@ -4,15 +4,23 @@
 
 ## Development Workflow
 
-1. **계획 수립**: `/feature-planner`로 Phase 기반 개발 계획을 세우고, verify 스킬이 자동 생성됩니다
-2. **개발 진행**: 각 Phase를 TDD (Red-Green-Refactor) 사이클로 구현합니다
-3. **검증 실행**: `/verify-implementation`으로 Quality Gate를 검증합니다 (Phase별 또는 전체)
-4. **스킬 유지보수**: `/manage-skills`로 검증 스킬을 코드베이스 변화에 맞춰 관리합니다
+**기본 사용법:** `/dev`에 기획서나 기능 요구사항을 전달하면, 계획 수립부터 TDD 개발, 검증, 스킬 정리까지 자동으로 실행됩니다. 사용자는 계획 승인과 FAIL 시 액션 선택에만 개입하면 됩니다.
+
+```
+/dev 사용자 인증 시스템을 구현해줘. 로그인/회원가입/비밀번호 재설정이 필요해.
+```
+
+**개별 스킬 직접 호출도 가능합니다:**
+
+1. **계획 수립**: `/feature-planner` — Phase 기반 개발 계획 수립, verify 스킬 자동 생성
+2. **개발 + 검증**: `/verify-implementation` — Quality Gate 검증 (Phase별 또는 전체)
+3. **스킬 유지보수**: `/manage-skills` — 검증 스킬을 코드베이스 변화에 맞춰 관리
 
 ## Skills
 
 | 스킬 | 설명 |
 |------|------|
+| `dev` | **전체 파이프라인 오케스트레이터** — 기획서 입력 → 계획 → TDD 개발 → 검증 → 완료까지 자동 실행 |
 | `feature-planner` | 기능 요구사항을 Phase 기반 TDD 개발 계획으로 분해하고, Phase별 verify 스킬을 자동 생성 |
 | `verify-implementation` | 등록된 verify 스킬을 Subagent로 병렬 실행하여 통합 검증 리포트 생성 |
 | `manage-skills` | 세션 변경사항/계획 문서를 분석하여 verify 스킬의 드리프트를 탐지하고 수정 |

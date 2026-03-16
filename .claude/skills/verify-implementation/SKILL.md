@@ -360,6 +360,7 @@ AskUserQuestion으로 사용자에게 확인한다:
 
 | File | Purpose |
 |------|---------|
+| `.claude/skills/dev/SKILL.md` | 전체 파이프라인 오케스트레이터 (이 스킬을 자동 호출) |
 | `.claude/skills/manage-skills/SKILL.md` | 스킬 유지보수 (실행 대상 목록 동기화) |
 | `.claude/skills/feature-planner/SKILL.md` | 계획 수립 (verify 스킬 생성 트리거) |
 | `.claude/agents/test-runner.md` | Subagent: 개별 verify 스킬 실행 (병렬) |
