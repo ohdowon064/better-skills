@@ -6,8 +6,17 @@
       "skill": "feature-planner",
       "mode": "CREATE",
       "prompt": "이 프로젝트에 사용자 인증 시스템을 구현하려고 해. 로그인/회원가입이랑 비밀번호 재설정 기능이 필요해. 계획 좀 세워줘.",
-      "expected_output": "codebase-scanner 1개를 실행하여 프로젝트 구조/테스트환경/기존코드를 통합 분석, 레포 타입 자동 감지, 감지된 명령어로 Quality Gate 채움, 3-5 Phase TDD 계획 수립, plan-writer로 계획 문서 생성, Phase별 skill-writer 병렬 실행으로 verify 스킬 자동 생성, 레지스트리 3곳 동기화",
-      "files": []
+      "expected_output": "codebase-scanner 1개를 실행하여 프로젝트 구조/테스트환경/기존코드를 통합 분석, 레포 타입 자동 감지, 감지된 명령어로 Quality Gate 채움, 3-5 Phase TDD 계획 수립, plan-writer로 계획 문서 생성, Phase별 skill-writer 병렬 실행으로 verify 스킬 자동 생성, 레지스트리 동기화",
+      "files": [],
+      "assertions": [
+        "codebase-scanner Subagent가 실행되어 레포 타입(BRAND_NEW/FRESH_START/CONFIG_ONLY/EXISTING)이 판별됨",
+        "생성된 계획 문서가 docs/plans/PLAN_*.md 경로에 존재함",
+        "각 Phase에 RED/GREEN/REFACTOR 단계가 포함됨",
+        "Quality Gate의 명령어가 플레이스홀더가 아닌 감지된 실제 명령어임",
+        "Phase 수만큼의 verify-phase-N-* 스킬 디렉토리가 생성됨",
+        "manage-skills/SKILL.md의 Registered Verify Skills 테이블에 새 스킬이 등록됨",
+        "AskUserQuestion으로 사용자 승인을 받은 후에만 문서가 생성됨"
+      ]
     },
     {
       "id": 2,
@@ -15,7 +24,14 @@
       "mode": "CREATE",
       "prompt": "새 프로젝트를 시작하려고 해. 아직 아무것도 없는 빈 폴더인데, Todo 앱의 백엔드 API를 만들고 싶어. 계획 세워줄래?",
       "expected_output": "BRAND_NEW 타입으로 감지, AskUserQuestion으로 기술 스택 확인 (언어/프레임워크/테스트러너), Phase 1에 프로젝트 스캐폴딩 포함, 이후 Phase에 실제 기능 구현, skill-writer 병렬 실행으로 verify 스킬 자동 생성",
-      "files": []
+      "files": [],
+      "assertions": [
+        "레포 타입이 BRAND_NEW로 감지됨",
+        "AskUserQuestion으로 언어/프레임워크/테스트러너/패키지매니저를 사용자에게 확인함",
+        "Phase 1이 프로젝트 스캐폴딩(git init, 패키지 초기화, 디렉토리 구조)을 포함함",
+        "AskUserQuestion으로 커버리지 목표를 사용자에게 확인함",
+        "Coverage Configuration 섹션의 값이 사용자 입력을 반영함"
+      ]
     },
     {
       "id": 3,
@@ -23,7 +39,14 @@
       "mode": "UPDATE",
       "prompt": "인증 기능 계획에 2FA(이중 인증) Phase를 추가하고 싶어. Phase 3과 Phase 4 사이에 넣어줘.",
       "expected_output": "기존 PLAN_auth.md를 읽고, Phase 3과 4 사이에 새 Phase 삽입, 이후 Phase 번호 재정렬, 새 Phase의 verify 스킬 생성, 영향받은 기존 스킬 이름 업데이트, 레지스트리 동기화",
-      "files": ["docs/plans/PLAN_auth.md"]
+      "files": ["docs/plans/PLAN_auth.md"],
+      "assertions": [
+        "기존 PLAN_auth.md를 읽어 현재 Phase 구조를 파악함",
+        "새 Phase가 Phase 4 위치에 삽입되고 기존 Phase 4 이후가 번호 +1 재정렬됨",
+        "새 Phase에 대한 verify-phase-4-* 스킬이 skill-writer로 생성됨",
+        "기존 verify-phase-4-* 이후 스킬 이름이 번호 변경에 맞게 업데이트됨",
+        "manage-skills/SKILL.md의 SSOT 테이블이 업데이트됨"
+      ]
     },
     {
       "id": 4,
@@ -31,50 +54,184 @@
       "mode": "COMPLETE",
       "prompt": "인증 기능 계획이 다 끝났어. 완료 처리해줘.",
       "expected_output": "모든 Phase Status가 Complete인지 확인, PLAN 문서 Status를 Completed로 변경, verify-phase-N 스킬들을 GRADUATE 처리 (범용 verify 스킬로 변환), 기존 Phase 스킬 ARCHIVED, 레지스트리 동기화",
-      "files": ["docs/plans/PLAN_auth.md"]
+      "files": ["docs/plans/PLAN_auth.md"],
+      "assertions": [
+        "모든 Phase의 Status가 ✅ Complete인지 확인함 (미완료 시 경고 후 중단)",
+        "PLAN 문서의 Status가 ✅ Completed로 변경됨",
+        "verify-phase-N-* 스킬이 범용 verify-* 스킬로 GRADUATE됨 (Phase 특화 검사 제거)",
+        "기존 Phase 스킬의 라이프사이클이 ARCHIVED로 변경됨",
+        "SSOT 테이블과 CLAUDE.md가 업데이트됨"
+      ]
     },
     {
       "id": 5,
       "skill": "verify-implementation",
       "prompt": "방금 Phase 1 구현을 끝냈어. 검증해줘.",
-      "expected_output": "phase-1 관련 verify 스킬만 필터링, test-runner Subagent로 병렬 실행 (TDD 검증 모드 활성화), 통합 리포트에 TDD Compliance 섹션 포함 (Test-First 순서/R-G-R 증거/신규 코드 커버리지), PLAN 문서의 Verification Status 및 TDD 체크박스 자동 업데이트",
-      "files": []
+      "expected_output": "phase-1 관련 verify 스킬만 필터링, test-runner Subagent로 병렬 실행 (TDD 검증 모드 활성화), 통합 리포트에 TDD Compliance 섹션 포함 (Test-First 순서/R-G-R 증거/REFACTOR 측정/신규 코드 커버리지), PLAN 문서의 Verification Status 및 TDD 체크박스 자동 업데이트",
+      "files": [],
+      "assertions": [
+        "verify-phase-1-* 패턴에 매칭되는 스킬만 실행 대상으로 선택됨",
+        "test-runner Subagent에 TDD 검증 모드가 활성화되어 Phase 시작 git ref가 전달됨",
+        "통합 리포트에 TDD Compliance 테이블이 포함됨 (Test-First/R-G-R/REFACTOR 측정/커버리지)",
+        "PLAN 문서의 Verification Status 섹션이 업데이트됨",
+        "TDD Compliance 체크박스가 검증 결과에 따라 자동 업데이트됨",
+        "verify-history.md에 실행 이력이 기록됨"
+      ]
     },
     {
       "id": 6,
       "skill": "verify-implementation",
       "prompt": "전체 검증 돌려줘. 모든 verify 스킬 실행해봐.",
-      "expected_output": "등록된 모든 verify 스킬을 독립/의존 분류 후 test-runner 병렬 실행, 통합 리포트에 모든 스킬 결과 포함, 이슈 발견 시 수정 옵션 제시, 커버되지 않은 변경 파일 발견 시 /manage-skills 추천 메시지 표시",
-      "files": []
+      "expected_output": "manage-skills SSOT에서 ACTIVE/CREATED 스킬을 읽어 전체 실행, 독립/의존 분류 후 test-runner 병렬 실행, 통합 리포트에 모든 스킬 결과 포함, 이슈 발견 시 수정 옵션 제시, cross-skill 추천",
+      "files": [],
+      "assertions": [
+        "manage-skills/SKILL.md의 SSOT 테이블에서 ACTIVE/CREATED 스킬 목록을 읽음",
+        "독립 스킬은 test-runner로 병렬 실행되고, 의존 스킬은 순차 실행됨",
+        "7개 초과 시 7개씩 배치로 나눠 실행됨",
+        "이슈 발견 시 AskUserQuestion으로 전체 자동 수정/개별 리뷰/건너뛰기 선택지 제시",
+        "커버되지 않은 변경 파일 발견 시 /manage-skills 추천 메시지가 표시됨",
+        "스킬 효과성 분석(연속 PASS/Skip 비율/FAIL 비율)이 리포트에 포함됨"
+      ]
     },
     {
       "id": 7,
       "skill": "manage-skills",
       "prompt": "새로 파일 몇 개 추가했는데, 스킬 점검 좀 해줘.",
-      "expected_output": "codebase-scanner로 변경사항/스킬갭/계획동기화 통합 분석, 새 파일이 기존 verify 스킬에 커버되지 않음을 감지, 기존 스킬 UPDATE 또는 새 스킬 CREATE 제안, 사용자 승인 후 skill-writer로 스킬 생성/업데이트 + 레지스트리 3곳 동기화, 완료 후 /verify-implementation 추천",
-      "files": []
+      "expected_output": "codebase-scanner로 변경사항/스킬갭/계획동기화 통합 분석, 새 파일이 기존 verify 스킬에 커버되지 않음을 감지, 기존 스킬 UPDATE 또는 새 스킬 CREATE 제안, 사용자 승인 후 skill-writer로 스킬 생성/업데이트 + 레지스트리 동기화, 완료 후 /verify-implementation 추천",
+      "files": [],
+      "assertions": [
+        "codebase-scanner Subagent가 실행되어 변경 파일과 스킬 갭을 분석함",
+        "File-to-Skill Mapping 테이블이 생성되어 UNCOVERED 파일이 식별됨",
+        "CREATE vs UPDATE 결정 트리가 적용되어 제안이 생성됨",
+        "AskUserQuestion으로 사용자 승인을 받은 후에만 스킬이 생성/수정됨",
+        "skill-writer UPDATE 시 기존 SKILL.md 스냅샷이 .claude/skill-versions/에 보관됨",
+        "SSOT 테이블과 CLAUDE.md가 업데이트됨",
+        "완료 후 /verify-implementation 추천 메시지가 표시됨"
+      ]
     },
     {
       "id": 8,
       "skill": "manage-skills",
       "prompt": "아직 verify 스킬이 하나도 없어. 이 프로젝트에 맞는 기본 스킬을 만들어줘.",
-      "expected_output": "Cold start 감지, 프로젝트 구조 분석, 기본 verify 스킬 세트 (build, test, lint) 제안 + 프로젝트 도메인에 맞는 추가 스킬 제안, 사용자 승인 후 skill-writer로 생성 + 레지스트리 3곳 업데이트, /verify-implementation 추천",
-      "files": []
+      "expected_output": "Cold start 감지, 프로젝트 구조 분석, 기본 verify 스킬 세트 (build, test, lint) 제안 + 프로젝트 도메인에 맞는 추가 스킬 제안, 사용자 승인 후 skill-writer로 생성 + 레지스트리 업데이트, /verify-implementation 추천",
+      "files": [],
+      "assertions": [
+        "등록된 스킬 0개로 Cold start가 감지됨",
+        "기본 verify 스킬 세트(build, test, lint) 최소 3개가 제안됨",
+        "git history가 있는 경우 프로젝트 도메인별 추가 스킬이 제안됨",
+        "AskUserQuestion으로 생성할 스킬을 사용자에게 확인함",
+        "SSOT 테이블의 '(아직 등록된 검증 스킬이 없습니다)' 텍스트가 실제 테이블로 대체됨",
+        "/verify-implementation 추천 메시지가 표시됨"
+      ]
     },
     {
       "id": 9,
       "skill": "verify-implementation",
       "prompt": "검증 스킬이 하나도 없는데 검증 돌려봐.",
       "expected_output": "등록된 스킬 0개 감지, 에러 대신 가이드 메시지 표시 (feature-planner 또는 manage-skills로 스킬 생성 안내), /feature-planner 추천",
-      "files": []
+      "files": [],
+      "assertions": [
+        "SSOT 테이블에서 스킬 0개를 감지하고, 폴백 파일 시스템 스캔에서도 0개를 확인함",
+        "에러/크래시 없이 가이드 메시지가 표시됨",
+        "가이드에 /feature-planner와 /manage-skills 두 가지 경로가 안내됨",
+        "/feature-planner 추천 메시지가 표시됨"
+      ]
     },
     {
       "id": 10,
       "skill": "feature-planner",
       "mode": "LIST",
       "prompt": "현재 진행 중인 계획들 보여줘.",
-      "expected_output": "docs/plans/PLAN_*.md를 검색, 각 문서의 Status/Phase 진행률/최종 검증 결과를 요약 테이블로 표시",
-      "files": []
+      "expected_output": "docs/plans/PLAN_*.md를 검색, Multi-PLAN Summary Table로 Status/진행률/현재 Phase/최종 검증/수정 파일 수를 요약, 복수 In Progress PLAN 간 파일 충돌 감지",
+      "files": [],
+      "assertions": [
+        "docs/plans/PLAN_*.md 파일이 검색됨",
+        "Multi-PLAN Summary Table이 출력됨 (PLAN명, Status, 진행률, 현재 Phase, 최종 검증, 수정 파일 수)",
+        "복수 PLAN이 동시 In Progress일 때 수정 대상 파일의 교차 비교가 수행됨",
+        "파일 충돌 발견 시 충돌 경고 테이블과 권장 조치가 표시됨",
+        "충돌이 없으면 '충돌 없음 — 병렬 개발 안전' 메시지가 표시됨"
+      ]
+    },
+    {
+      "id": 11,
+      "skill": "verify-implementation",
+      "prompt": "지금 인증이랑 검색 두 개를 동시에 개발 중인데, 현재 Phase 검증해줘.",
+      "expected_output": "--current-phase로 복수 PLAN 감지, AskUserQuestion으로 PLAN 선택 (PLAN_auth/PLAN_search/모두 검증), 선택에 따라 해당 Phase 스킬 실행, PLAN별 그룹화된 통합 리포트 출력",
+      "files": ["docs/plans/PLAN_auth.md", "docs/plans/PLAN_search.md"],
+      "assertions": [
+        "docs/plans/PLAN_*.md에서 🔄 In Progress 상태인 PLAN이 2개 이상 감지됨",
+        "AskUserQuestion으로 PLAN_auth/PLAN_search/모두 검증 선택지가 제시됨",
+        "'모두 검증' 선택 시 두 PLAN의 Phase 스킬이 모두 수집되어 병렬 실행됨",
+        "통합 리포트가 PLAN별로 그룹화되어 표시됨 (PLAN_auth 섹션, PLAN_search 섹션 분리)"
+      ]
+    },
+    {
+      "id": 12,
+      "skill": "verify-implementation",
+      "prompt": "PLAN_auth의 Phase 2만 검증해줘.",
+      "expected_output": "PLAN 지정 인수 'PLAN_auth phase-2'로 파싱, PLAN_auth의 Phase 2 관련 verify 스킬만 실행, TDD Compliance 포함 통합 리포트 출력",
+      "files": ["docs/plans/PLAN_auth.md"],
+      "assertions": [
+        "인수가 'PLAN_auth phase-2'로 파싱되어 특정 PLAN의 특정 Phase만 선택됨",
+        "verify-phase-2-auth-* 패턴의 스킬만 실행 대상에 포함됨",
+        "다른 PLAN(PLAN_search 등)의 스킬은 실행되지 않음",
+        "통합 리포트에 TDD Compliance가 포함됨"
+      ]
+    },
+    {
+      "id": 13,
+      "skill": "verify-implementation",
+      "prompt": "Phase 2 검증 결과에서 REFACTOR 측정값도 보여줘.",
+      "expected_output": "test-runner가 5c REFACTOR 정량 측정을 수행하여 파일 길이/함수 수/평균 함수 길이/중복 코드를 REFACTOR 전후로 비교, 통합 리포트 TDD Compliance에 REFACTOR 측정 컬럼이 포함됨",
+      "files": [],
+      "assertions": [
+        "test-runner가 git log에서 refactor 키워드 포함 커밋을 식별함",
+        "REFACTOR 전후 파일 길이 비교(wc -l)가 수행됨",
+        "REFACTOR 전후 함수 수 비교가 수행됨",
+        "통합 리포트 TDD Compliance 테이블에 REFACTOR 측정 컬럼이 존재함",
+        "REFACTOR 커밋이 없으면 WARN('REFACTOR 미수행 — 리팩토링 권장')으로 표시됨"
+      ]
+    },
+    {
+      "id": 14,
+      "skill": "verify-implementation",
+      "prompt": "검증 돌렸는데 verify-auth에서 JWT 만료 시간 검사가 또 false positive 떴어. 5번째인데 자동으로 예외 처리 안 돼?",
+      "expected_output": "verify-history.md에서 동일 항목 3회 이상 연속 Skip 이력을 감지, False Positive 학습 제안으로 Exceptions 추가를 자동 제안, 사용자 승인 후 skill-writer로 해당 스킬의 Exceptions 섹션 업데이트",
+      "files": [],
+      "assertions": [
+        "verify-history.md에서 verify-auth의 JWT 만료 검사 항목이 3회 이상 연속 Skip된 것을 감지함",
+        "False Positive 학습 제안 테이블이 표시됨 (스킬/검사 항목/연속 Skip 횟수/제안)",
+        "AskUserQuestion으로 예 모두 추가/개별 선택/아니오 선택지가 제시됨",
+        "승인 시 skill-writer UPDATE 모드로 해당 스킬의 Exceptions 섹션에 새 항목이 추가됨"
+      ]
+    },
+    {
+      "id": 15,
+      "skill": "manage-skills",
+      "prompt": "방금 verify-auth 스킬을 업데이트했는데 뭔가 잘못된 것 같아. 이전 버전으로 돌릴 수 있어?",
+      "expected_output": "skill-versions 디렉토리에서 verify-auth의 스냅샷 이력을 조회, 롤백/유지/비교 선택지 제시, 사용자 선택에 따라 이전 버전으로 복원 또는 diff 표시",
+      "files": [],
+      "assertions": [
+        ".claude/skill-versions/verify-auth/ 디렉토리에서 기존 스냅샷 목록이 조회됨",
+        "스킬 버전 이력 테이블이 표시됨 (버전 수, 최초/최신 버전 날짜)",
+        "AskUserQuestion으로 롤백/유지/비교 선택지가 제시됨",
+        "'비교' 선택 시 diff 출력이 표시됨",
+        "'롤백' 선택 시 현재 버전이 먼저 스냅샷으로 보관된 후 이전 버전으로 복원됨"
+      ]
+    },
+    {
+      "id": 16,
+      "skill": "manage-skills",
+      "prompt": "verify-api 스킬 좀 수정해줘. Related Files에 새 핸들러 파일 추가해야 해.",
+      "expected_output": "skill-writer UPDATE 모드 실행 전에 기존 SKILL.md 스냅샷이 .claude/skill-versions/에 자동 보관됨, 수정 완료 후 SSOT 테이블 업데이트, /verify-implementation 추천",
+      "files": [],
+      "assertions": [
+        "skill-writer UPDATE 실행 전에 .claude/skill-versions/verify-api/SKILL_*.md 스냅샷이 생성됨",
+        "기존 검사가 제거되지 않고 Related Files에 새 파일만 추가됨",
+        "SSOT 테이블이 업데이트됨",
+        "/verify-implementation 추천 메시지가 표시됨",
+        "스냅샷 파일명이 SKILL_YYYYMMDD_HHMMSS.md 형식임"
+      ]
     }
   ]
 }
