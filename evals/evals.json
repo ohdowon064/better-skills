@@ -75,7 +75,7 @@
         "통합 리포트에 TDD Compliance 테이블이 포함됨 (Test-First/R-G-R/REFACTOR 측정/커버리지)",
         "PLAN 문서의 Verification Status 섹션이 업데이트됨",
         "TDD Compliance 체크박스가 검증 결과에 따라 자동 업데이트됨",
-        "verify-history.md에 실행 이력이 기록됨"
+        "verify-history.json에 실행 이력이 JSON으로 기록되고 최근 100건만 유지됨"
       ]
     },
     {
@@ -196,10 +196,10 @@
       "id": 14,
       "skill": "verify-implementation",
       "prompt": "검증 돌렸는데 verify-auth에서 JWT 만료 시간 검사가 또 false positive 떴어. 5번째인데 자동으로 예외 처리 안 돼?",
-      "expected_output": "verify-history.md에서 동일 항목 3회 이상 연속 Skip 이력을 감지, False Positive 학습 제안으로 Exceptions 추가를 자동 제안, 사용자 승인 후 skill-writer로 해당 스킬의 Exceptions 섹션 업데이트",
+      "expected_output": "verify-history.json에서 동일 항목 3회 이상 연속 Skip 이력을 감지, False Positive 학습 제안으로 Exceptions 추가를 자동 제안, 사용자 승인 후 skill-writer로 해당 스킬의 Exceptions 섹션 업데이트",
       "files": [],
       "assertions": [
-        "verify-history.md에서 verify-auth의 JWT 만료 검사 항목이 3회 이상 연속 Skip된 것을 감지함",
+        "verify-history.json의 entries에서 verify-auth의 skippedChecks에 JWT 만료 검사 항목이 3회 이상 연속 포함된 것을 감지함",
         "False Positive 학습 제안 테이블이 표시됨 (스킬/검사 항목/연속 Skip 횟수/제안)",
         "AskUserQuestion으로 예 모두 추가/개별 선택/아니오 선택지가 제시됨",
         "승인 시 skill-writer UPDATE 모드로 해당 스킬의 Exceptions 섹션에 새 항목이 추가됨"

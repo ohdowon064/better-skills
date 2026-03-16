@@ -257,23 +257,59 @@ AGENT_FAILURE 스킬은 PASS/FAIL 집계에서 제외한다. 전체 스킬이 AG
 
 ### Step 8: Execution History & Skill Effectiveness
 
-검증 실행 결과를 `.claude/verify-history.md`에 기록하여, 스킬 효과성을 추적한다.
+검증 실행 결과를 `.claude/verify-history.json`에 기록하여, 스킬 효과성을 추적한다.
 
-**실행 이력 기록:**
+**JSON 형식 & 자동 Rotate:**
 
-```markdown
-## Verify Execution History
+`.claude/verify-history.json`은 다음 구조를 가진다:
 
-| 날짜 | 스킬 | 결과 | 이슈 수 | 사용자 액션 | 소요 시간 |
-|------|------|------|---------|------------|----------|
-| 2026-03-16 | verify-phase-1-models | PASS | 0 | — | 5s |
-| 2026-03-16 | verify-phase-2-logic | FAIL | 2 | auto-fix | 8s |
-| 2026-03-17 | verify-phase-2-logic | PASS | 0 | — | 7s |
+```json
+{
+  "maxEntries": 100,
+  "entries": [
+    {
+      "date": "2026-03-16T14:30:00",
+      "skill": "verify-phase-1-models",
+      "result": "PASS",
+      "issueCount": 0,
+      "userAction": null,
+      "skippedChecks": [],
+      "durationSec": 5
+    },
+    {
+      "date": "2026-03-16T14:30:00",
+      "skill": "verify-phase-2-logic",
+      "result": "FAIL",
+      "issueCount": 2,
+      "userAction": "auto-fix",
+      "skippedChecks": [],
+      "durationSec": 8
+    },
+    {
+      "date": "2026-03-16T14:30:00",
+      "skill": "verify-auth",
+      "result": "FAIL",
+      "issueCount": 2,
+      "userAction": "skip",
+      "skippedChecks": ["JWT 만료 검사"],
+      "durationSec": 5
+    }
+  ]
+}
 ```
+
+**기록 절차:**
+
+1. `.claude/verify-history.json`을 읽는다 (파일이 없으면 `{ "maxEntries": 100, "entries": [] }`로 초기화)
+2. 이번 실행의 각 스킬 결과를 `entries` 배열 끝에 추가한다
+3. `entries.length > maxEntries`이면 **오래된 항목부터 제거**하여 최근 `maxEntries`건만 유지한다 (FIFO rotate)
+4. 파일을 다시 쓴다
+
+> **마이그레이션**: 기존 `.claude/verify-history.md`가 존재하면 내용을 파싱하여 JSON으로 변환한 후 `.md` 파일을 삭제한다.
 
 **스킬 효과성 분석:**
 
-실행 이력이 5회 이상 쌓인 스킬에 대해 효과성 지표를 계산한다:
+`entries` 배열을 스킬별로 groupBy하여, 실행 이력이 5회 이상인 스킬에 대해 효과성 지표를 계산한다:
 
 | 지표 | 계산 방법 | 의미 |
 |------|----------|------|
@@ -292,12 +328,12 @@ AGENT_FAILURE 스킬은 PASS/FAIL 집계에서 제외한다. 전체 스킬이 AG
 
 ### Step 9: False Positive 자동 학습
 
-`.claude/verify-history.md`의 실행 이력에서 사용자가 Skip한 항목을 분석하여, 반복적인 false positive에 대해 Exceptions 추가를 자동 제안한다.
+`.claude/verify-history.json`의 실행 이력에서 사용자가 Skip한 항목을 분석하여, 반복적인 false positive에 대해 Exceptions 추가를 자동 제안한다.
 
 **분석 절차:**
 
-1. verify-history.md에서 최근 이력을 읽는다
-2. 동일 스킬의 동일 검사 항목이 **3회 연속 Skip**된 경우를 식별한다
+1. verify-history.json에서 `entries` 배열을 읽는다
+2. 동일 스킬의 `skippedChecks`에 동일 항목이 **3회 연속** 포함된 경우를 식별한다
 3. 해당 항목에 대해 자동으로 Exceptions 추가를 제안한다
 
 ```markdown
@@ -318,15 +354,7 @@ AskUserQuestion으로 사용자에게 확인한다:
 
 승인된 항목에 대해 `skill-writer` Subagent를 UPDATE 모드로 실행하여 해당 스킬의 Exceptions 섹션에 새 항목을 추가한다.
 
-**verify-history.md 기록 형식 (Skip 추적용):**
-
-기존 이력 테이블에 "Skip된 항목" 컬럼을 활용한다:
-
-```markdown
-| 날짜 | 스킬 | 결과 | 이슈 수 | 사용자 액션 | Skip된 항목 | 소요 시간 |
-|------|------|------|---------|------------|------------|----------|
-| 2026-03-16 | verify-auth | FAIL | 2 | skip | JWT 만료 검사 | 5s |
-```
+**Skip 추적은 JSON의 `skippedChecks` 배열로 관리된다** (Step 8 참조). 별도 형식 불필요.
 
 ### Step 10: Cross-Skill Recommendations
 
@@ -384,6 +412,6 @@ AskUserQuestion으로 사용자에게 확인한다:
 | `.claude/skills/manage-skills/SKILL.md` | 스킬 유지보수 (실행 대상 목록 동기화) |
 | `.claude/skills/feature-planner/SKILL.md` | 계획 수립 (verify 스킬 생성 트리거) |
 | `.claude/agents/test-runner.md` | Subagent: 개별 verify 스킬 실행 (병렬) |
-| `.claude/verify-history.md` | 검증 실행 이력 (스킬 효과성 추적) |
+| `.claude/verify-history.json` | 검증 실행 이력 JSON (최근 100건 rotate, 스킬 효과성 추적) |
 | `CLAUDE.md` | 프로젝트 가이드라인 |
 | `docs/plans/PLAN_*.md` | 계획 문서 (Verification Status 업데이트 대상) |

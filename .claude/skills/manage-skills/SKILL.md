@@ -252,10 +252,10 @@ AskUserQuestion을 사용하여 확인한다.
 
 ### Step 7: Skill Lifecycle Management
 
-`codebase-scanner`의 계획 문서 동기화 결과와 **`.claude/verify-history.md`** 실행 이력을 바탕으로 스킬 라이프사이클을 관리한다.
+`codebase-scanner`의 계획 문서 동기화 결과와 **`.claude/verify-history.json`** 실행 이력을 바탕으로 스킬 라이프사이클을 관리한다.
 
 **실행 이력 기반 판단:**
-- `.claude/verify-history.md`가 존재하면 읽어서 각 스킬의 효과성 지표를 확인한다
+- `.claude/verify-history.json`이 존재하면 `entries` 배열을 스킬별로 groupBy하여 효과성 지표를 확인한다
 - 연속 PASS 10회 이상인 스킬 → GRADUATE 후보로 추가 제안
 - Skip 비율 50% 이상인 스킬 → Exceptions 업데이트를 함께 제안
 - FAIL 비율 80% 이상인 스킬 → 검사 기준 완화 또는 코드 수정 필요 알림
@@ -284,7 +284,7 @@ GRADUATE 시:
 
 **전달 항목:**
 - 이번 세션에서 업데이트된 스킬 이름 목록
-- `.claude/verify-history.md`에서 업데이트 후 FAIL이 증가한 스킬이 있으면 롤백 후보로 표시
+- `.claude/verify-history.json`에서 업데이트 후 FAIL이 증가한 스킬이 있으면 롤백 후보로 표시
 
 **Subagent가 수행하는 내용:**
 - 전체 스킬의 버전 이력 조회 및 보고서 생성
@@ -439,7 +439,7 @@ AskUserQuestion 선택지:
 | `.claude/agents/skill-writer.md` | Subagent: verify 스킬 생성/업데이트 (병렬) |
 | `.claude/agents/version-manager.md` | Subagent: 스킬 버전 이력 조회/롤백/정리 |
 | `.claude/agents/evals-checker.md` | Subagent: evals 드리프트 감지/자동 수정 |
-| `.claude/verify-history.md` | 검증 실행 이력 (스킬 효과성 분석) |
+| `.claude/verify-history.json` | 검증 실행 이력 JSON (최근 100건 rotate, 스킬 효과성 분석) |
 | `.claude/skill-versions/` | 스킬 버전 스냅샷 디렉토리 (이력 조회/롤백) |
 | `evals/evals.json` | 스킬 테스트 케이스 (evals 드리프트 감지 대상) |
 | `CLAUDE.md` | 프로젝트 가이드라인 (Skills 테이블 관리) |
