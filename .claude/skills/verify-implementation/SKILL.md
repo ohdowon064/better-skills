@@ -27,16 +27,19 @@ argument-hint: "[선택: phase-1, phase-2, ... 또는 --current-phase]"
 
 ## Target Skills
 
-현재 등록된 검증 스킬 목록이다. manage-skills 또는 feature-planner가 스킬을 생성/삭제할 때 이 테이블을 업데이트한다.
+실행 대상 스킬 목록은 **`manage-skills/SKILL.md`의 Registered Verify Skills 테이블**을 단일 소스(SSOT)로 참조한다.
 
-(아직 등록된 검증 스킬이 없습니다)
+**스킬 로딩 절차:**
+1. `.claude/skills/manage-skills/SKILL.md`를 읽는다
+2. "Registered Verify Skills" 섹션의 테이블을 파싱한다
+3. 라이프사이클이 ACTIVE 또는 CREATED인 스킬만 실행 대상에 포함한다
+4. ARCHIVED 스킬은 제외한다
 
-<!-- 스킬이 추가되면 아래 형식으로 등록:
-| # | 스킬 | 설명 |
-|---|------|------|
-| 1 | `verify-phase-1-foundation` | Phase 1 기반 구조 검증 |
-| 2 | `verify-build` | 빌드/컴파일 검증 |
--->
+**SSOT를 읽을 수 없는 경우 (파일 없음/파싱 실패):**
+폴백으로 파일 시스템에서 직접 스캔한다:
+```bash
+ls .claude/skills/verify-*/SKILL.md 2>/dev/null
+```
 
 ## Workflow
 
@@ -92,7 +95,12 @@ argument-hint: "[선택: phase-1, phase-2, ... 또는 --current-phase]"
 
 > **사용하는 Subagent**: `.claude/agents/test-runner.md`
 
-각 `test-runner`에게 해당 verify 스킬의 SKILL.md 경로를 전달한다. Subagent가 스킬을 읽고, Workflow의 모든 검사를 수행하여, 각 검사의 PASS/FAIL/EXEMPT 상태와 상세 내용을 반환한다.
+각 `test-runner`에게 다음 정보를 전달한다:
+1. 해당 verify 스킬의 SKILL.md 경로
+2. 프로젝트 루트 경로
+3. **TDD 검증 모드 활성화** — Phase 스킬인 경우 (`verify-phase-N-*` 패턴), Phase 시작 시점의 git ref를 함께 전달하여 TDD Compliance Check를 수행하도록 한다
+
+Subagent가 스킬을 읽고, Workflow의 모든 검사를 수행하여, 각 검사의 PASS/FAIL/EXEMPT 상태와 상세 내용을 반환한다. Phase 스킬인 경우 추가로 TDD 순서 검증 결과도 반환한다.
 
 이것이 기존 순차 실행 대비 핵심 개선점이다. 5개 스킬이 있으면 5배 빠르게 끝난다.
 
@@ -122,6 +130,17 @@ argument-hint: "[선택: phase-1, phase-2, ... 또는 --current-phase]"
 | verify-integration | ✅ PASS | 0 | 15s |
 
 **전체 결과**: 3 PASS / 1 FAIL / 1 WARN
+
+### TDD Compliance (Phase 스킬에 대해서만)
+
+| Phase | Test-First 순서 | R-G-R 증거 | 신규 코드 커버리지 |
+|-------|----------------|------------|-------------------|
+| Phase 1 | ✅ 5/5 파일 | ✅ DETECTED | 87% (목표 80%) ✅ |
+| Phase 2 | ⚠️ 3/5 파일 | ✅ DETECTED | 78% (목표 80%) ❌ |
+
+**TDD 위반 상세:**
+- `src/services/payment.ts`: 소스가 테스트보다 2커밋 먼저 (커밋 abc123)
+- `src/utils/validator.ts`: 대응 테스트 파일 없음
 
 ### 이슈 상세
 
@@ -172,6 +191,84 @@ argument-hint: "[선택: phase-1, phase-2, ... 또는 --current-phase]"
 
 해당 Phase의 Quality Gate 체크박스도 검증 결과에 따라 업데이트한다.
 
+**TDD Compliance 체크박스도 자동 업데이트:**
+- Test-First 순서 검증 결과 → "Tests written FIRST and initially failed" 체크박스
+- 신규 코드 커버리지 결과 → "Coverage meets requirements" 체크박스
+- R-G-R 증거 결과 → "Code improved while tests still pass" 체크박스
+
+### Step 8: Execution History & Skill Effectiveness
+
+검증 실행 결과를 `.claude/verify-history.md`에 기록하여, 스킬 효과성을 추적한다.
+
+**실행 이력 기록:**
+
+```markdown
+## Verify Execution History
+
+| 날짜 | 스킬 | 결과 | 이슈 수 | 사용자 액션 | 소요 시간 |
+|------|------|------|---------|------------|----------|
+| 2026-03-16 | verify-phase-1-models | PASS | 0 | — | 5s |
+| 2026-03-16 | verify-phase-2-logic | FAIL | 2 | auto-fix | 8s |
+| 2026-03-17 | verify-phase-2-logic | PASS | 0 | — | 7s |
+```
+
+**스킬 효과성 분석:**
+
+실행 이력이 5회 이상 쌓인 스킬에 대해 효과성 지표를 계산한다:
+
+| 지표 | 계산 방법 | 의미 |
+|------|----------|------|
+| FAIL 비율 | FAIL 횟수 / 전체 실행 | 높으면 → 스킬이 실제 이슈를 잡고 있음 (유용) |
+| 연속 PASS | 최근 N회 연속 PASS | 높으면 → 스킬이 더 이상 가치를 못 내고 있음 (GRADUATE 후보) |
+| Skip 비율 | 사용자 Skip / FAIL 횟수 | 높으면 → false positive가 많음 (스킬 수정 필요) |
+| 평균 이슈 수 | 총 이슈 / FAIL 횟수 | 낮으면 → 사소한 이슈만 잡음 |
+
+**자동 제안:**
+
+- 연속 PASS 10회 이상 → "이 스킬은 최근 이슈를 발견하지 못하고 있습니다. GRADUATE 또는 ARCHIVE를 고려하세요."
+- Skip 비율 50% 이상 → "이 스킬의 false positive 비율이 높습니다. Exceptions 섹션 업데이트를 권장합니다."
+- FAIL 비율 80% 이상 → "이 스킬이 거의 항상 FAIL합니다. 검사 기준이 너무 엄격하거나 근본적 코드 문제가 있을 수 있습니다."
+
+이 분석은 통합 리포트의 마지막에 "스킬 건강 상태" 섹션으로 포함된다.
+
+### Step 9: Cross-Skill Recommendations
+
+검증 결과를 분석하여 다른 스킬의 실행을 추천한다.
+
+**manage-skills 추천 조건:**
+
+검증 과정에서 다음 중 하나라도 발견되면, 리포트 마지막에 `/manage-skills` 실행을 추천한다:
+
+1. **커버되지 않은 변경 파일** — `git diff HEAD --name-only`로 최근 변경된 파일 중 어떤 verify 스킬의 Related Files에도 포함되지 않는 파일이 있는 경우
+2. **깨진 스킬 참조** — verify 스킬의 Related Files에 존재하지 않는 파일이 참조된 경우 (스킬이 stale)
+3. **반복 FAIL** — 동일 스킬이 3회 연속 FAIL이면 스킬 자체의 수정이 필요할 수 있음
+4. **Phase 완료 감지** — 모든 체크박스가 완료된 Phase가 있으면 GRADUATE 처리 필요
+
+추천 메시지 형식:
+
+```markdown
+---
+
+### 💡 추천 액션
+
+다음 이유로 `/manage-skills` 실행을 권장합니다:
+- 최근 변경된 3개 파일이 어떤 verify 스킬에도 커버되지 않음: `src/new-module.ts`, `src/helpers/format.ts`, `src/config/db.ts`
+- `verify-phase-1-models`의 Related Files에 삭제된 파일 참조 1건
+
+> `/manage-skills`를 실행하면 스킬 커버리지를 점검하고 필요한 업데이트를 수행합니다.
+```
+
+**feature-planner 추천 조건:**
+
+등록된 verify 스킬이 0개이고, `docs/plans/` 디렉토리에 계획 문서도 없는 경우:
+
+```markdown
+### 💡 추천 액션
+
+검증 스킬과 계획 문서가 모두 없습니다.
+> `/feature-planner`로 기능 계획을 수립하면 Phase별 verify 스킬이 자동 생성됩니다.
+```
+
 ## Exceptions
 
 다음은 **문제가 아니다**:
@@ -189,5 +286,6 @@ argument-hint: "[선택: phase-1, phase-2, ... 또는 --current-phase]"
 | `.claude/skills/manage-skills/SKILL.md` | 스킬 유지보수 (실행 대상 목록 동기화) |
 | `.claude/skills/feature-planner/SKILL.md` | 계획 수립 (verify 스킬 생성 트리거) |
 | `.claude/agents/test-runner.md` | Subagent: 개별 verify 스킬 실행 (병렬) |
+| `.claude/verify-history.md` | 검증 실행 이력 (스킬 효과성 추적) |
 | `CLAUDE.md` | 프로젝트 가이드라인 |
 | `docs/plans/PLAN_*.md` | 계획 문서 (Verification Status 업데이트 대상) |

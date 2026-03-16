@@ -91,10 +91,17 @@
 ### TDD Principle
 Write tests FIRST, then implement to make them pass.
 
+### Coverage Configuration
+| Setting | Value | Notes |
+|---------|-------|-------|
+| **전체 커버리지 목표** | [프로젝트 설정값, 기본 80%] | 프로젝트 전체 라인 커버리지 |
+| **신규 코드 커버리지 목표** | [프로젝트 설정값, 기본 80%] | Phase에서 추가/수정된 파일 대상 |
+| **커버리지 하락 허용** | No | Phase 전후 전체 커버리지 비교 |
+
 ### Test Pyramid
 | Test Type | Coverage Target | Purpose |
 |-----------|-----------------|---------|
-| **Unit Tests** | ≥80% | Business logic, models, core algorithms |
+| **Unit Tests** | ≥[설정값]% | Business logic, models, core algorithms |
 | **Integration Tests** | Critical paths | Component interactions, data flow |
 | **E2E Tests** | Key user flows | Full system behavior validation |
 
@@ -133,16 +140,18 @@ Write tests FIRST, then implement to make them pass.
 
 Run: `/verify-implementation phase-1`
 
-**TDD Compliance**:
-- [ ] Tests written FIRST and initially failed
+**TDD Compliance** (verify-implementation이 자동 검증):
+- [ ] Tests written FIRST and initially failed (git 이력 기반 자동 검증)
 - [ ] Production code written to make tests pass
+- [ ] Red-Green-Refactor cycle evidence detected (커밋 패턴 자동 분석)
 - [ ] Code improved while tests still pass
-- [ ] Coverage meets requirements
 
 **Build & Tests**:
 - [ ] Build: `[detected build command]` — no errors
 - [ ] Tests: `[detected test command]` — all passing
-- [ ] Coverage: `[detected coverage command]` — meets target
+- [ ] Overall Coverage: `[detected coverage command]` — ≥ 전체 목표
+- [ ] **Incremental Coverage**: 이 Phase에서 추가/수정된 파일의 커버리지 ≥ 신규 코드 목표
+- [ ] **No Coverage Regression**: 전체 커버리지가 Phase 이전보다 하락하지 않음
 
 **Code Quality**:
 - [ ] Lint: `[detected lint command]` — no errors

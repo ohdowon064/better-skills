@@ -24,9 +24,11 @@ argument-hint: "[선택사항: 특정 스킬 이름 또는 집중할 영역]"
 - 검증 실행 시 예상했던 이슈를 놓쳤을 때
 - 주기적으로 스킬을 코드베이스 변화에 맞춰 정렬할 때
 
-## Registered Verify Skills
+## Registered Verify Skills (Single Source of Truth)
 
-현재 프로젝트에 등록된 검증 스킬 목록이다. 새 스킬 생성/삭제 시 이 목록을 업데이트한다.
+**이 테이블이 verify 스킬 목록의 유일한 정식 소스(SSOT)이다.** verify-implementation과 CLAUDE.md는 이 테이블을 참조한다.
+
+스킬 생성/삭제 시 이 테이블만 업데이트하면, verify-implementation과 CLAUDE.md는 런타임에 이 테이블을 읽어 동기화한다.
 
 (아직 등록된 검증 스킬이 없습니다)
 
@@ -205,21 +207,28 @@ AskUserQuestion을 사용하여 확인한다.
    - 대상 파일 경로
    - 프로젝트 컨텍스트 (감지된 명령어)
 
-4. **레지스트리 업데이트** — 모든 병렬 생성이 완료된 후 순차적으로 3개 파일을 업데이트:
+4. **레지스트리 업데이트** — 모든 병렬 생성이 완료된 후 업데이트:
 
-   **4a. 이 파일 자체 (`manage-skills/SKILL.md`):**
+   **4a. 이 파일 자체 (`manage-skills/SKILL.md`) — SSOT:**
    - Registered Verify Skills 테이블에 새 행 추가
    - 첫 스킬 추가 시 "(아직 등록된 검증 스킬이 없습니다)" 텍스트 제거 후 테이블 생성
 
-   **4b. `verify-implementation/SKILL.md`:**
-   - Target Skills 테이블에 새 행 추가
-
-   **4c. `CLAUDE.md`:**
+   **4b. `CLAUDE.md`:**
    - Skills 테이블에 새 행 추가
+
+   > verify-implementation은 런타임에 이 파일의 SSOT 테이블을 읽으므로 별도 업데이트 불필요
 
 ### Step 7: Skill Lifecycle Management
 
-`codebase-scanner`의 계획 문서 동기화 결과를 바탕으로 스킬 라이프사이클을 관리한다:
+`codebase-scanner`의 계획 문서 동기화 결과와 **`.claude/verify-history.md`** 실행 이력을 바탕으로 스킬 라이프사이클을 관리한다.
+
+**실행 이력 기반 판단:**
+- `.claude/verify-history.md`가 존재하면 읽어서 각 스킬의 효과성 지표를 확인한다
+- 연속 PASS 10회 이상인 스킬 → GRADUATE 후보로 추가 제안
+- Skip 비율 50% 이상인 스킬 → Exceptions 업데이트를 함께 제안
+- FAIL 비율 80% 이상인 스킬 → 검사 기준 완화 또는 코드 수정 필요 알림
+
+스킬 라이프사이클:
 
 ```
 CREATED   → feature-planner가 생성. 아직 검증 미실행.
@@ -246,7 +255,7 @@ GRADUATE 시:
    ls <file-path> 2>/dev/null || echo "MISSING: <file-path>"
    ```
 4. 업데이트된 각 스킬에서 탐지 명령어 하나를 드라이런
-5. Registered Verify Skills 테이블과 Target Skills 테이블이 동기화되어 있는지 확인
+5. Registered Verify Skills (SSOT) 테이블과 실제 `.claude/skills/verify-*/SKILL.md` 파일이 일치하는지 확인 (테이블에 있지만 파일 없음 / 파일 있지만 테이블에 없음)
 
 ### Step 9: Summary Report
 
@@ -271,6 +280,41 @@ GRADUATE 시:
 
 ### EXEMPT (적용 스킬 없음):
 - `path/to/file` — 면제 (사유)
+```
+
+### Step 10: Cross-Skill Recommendations
+
+스킬 유지보수 결과를 분석하여 다른 스킬의 실행을 추천한다.
+
+**verify-implementation 추천 조건:**
+
+다음 중 하나라도 해당하면, 보고서 마지막에 `/verify-implementation` 실행을 추천한다:
+
+1. **스킬이 신규 생성됨** — 새로 만든 verify 스킬이 실제로 동작하는지 검증 필요
+2. **스킬이 업데이트됨** — 수정된 스킬의 탐지 명령어가 정상 작동하는지 확인 필요
+3. **GRADUATE 처리됨** — 범용화된 스킬의 검증 범위가 올바른지 확인 필요
+
+```markdown
+---
+
+### 💡 추천 액션
+
+다음 이유로 `/verify-implementation` 실행을 권장합니다:
+- 새로 생성된 스킬 2개의 동작 확인 필요: `verify-auth`, `verify-api`
+- 업데이트된 스킬 1개의 재검증 필요: `verify-models`
+
+> `/verify-implementation`을 실행하면 새로 생성/수정된 스킬이 정상 동작하는지 즉시 확인할 수 있습니다.
+```
+
+**feature-planner 추천 조건:**
+
+분석 결과 대규모 미커버 영역이 발견되었지만, 기존 스킬의 확장으로는 커버할 수 없는 경우:
+
+```markdown
+### 💡 추천 액션
+
+미커버 영역이 새로운 기능 모듈로 보입니다.
+> `/feature-planner`로 해당 기능의 개발 계획을 수립하면 체계적인 verify 스킬이 자동 생성됩니다.
 ```
 
 ## Quality Standards
@@ -305,5 +349,6 @@ GRADUATE 시:
 | `.claude/skills/manage-skills/SKILL.md` | 이 파일 자체 (Registered Verify Skills 관리) |
 | `.claude/agents/codebase-scanner.md` | Subagent: 변경사항/스킬갭/계획동기화 통합 분석 |
 | `.claude/agents/skill-writer.md` | Subagent: verify 스킬 생성/업데이트 (병렬) |
+| `.claude/verify-history.md` | 검증 실행 이력 (스킬 효과성 분석) |
 | `CLAUDE.md` | 프로젝트 가이드라인 (Skills 테이블 관리) |
 | `docs/plans/PLAN_*.md` | 계획 문서 (Phase 상태 확인용) |

@@ -4,43 +4,76 @@
     {
       "id": 1,
       "skill": "feature-planner",
+      "mode": "CREATE",
       "prompt": "이 프로젝트에 사용자 인증 시스템을 구현하려고 해. 로그인/회원가입이랑 비밀번호 재설정 기능이 필요해. 계획 좀 세워줘.",
-      "expected_output": "Explore Subagent 3개를 병렬 실행하여 프로젝트 구조/테스트환경/기존코드를 분석, 레포 타입 자동 감지, 감지된 명령어로 Quality Gate 채움, 3-5 Phase TDD 계획 수립, Phase별 verify 스킬 자동 생성",
+      "expected_output": "codebase-scanner 1개를 실행하여 프로젝트 구조/테스트환경/기존코드를 통합 분석, 레포 타입 자동 감지, 감지된 명령어로 Quality Gate 채움, 3-5 Phase TDD 계획 수립, plan-writer로 계획 문서 생성, Phase별 skill-writer 병렬 실행으로 verify 스킬 자동 생성, 레지스트리 3곳 동기화",
       "files": []
     },
     {
       "id": 2,
       "skill": "feature-planner",
+      "mode": "CREATE",
       "prompt": "새 프로젝트를 시작하려고 해. 아직 아무것도 없는 빈 폴더인데, Todo 앱의 백엔드 API를 만들고 싶어. 계획 세워줄래?",
-      "expected_output": "BRAND_NEW 타입으로 감지, AskUserQuestion으로 기술 스택 확인 (언어/프레임워크/테스트러너), Phase 1에 프로젝트 스캐폴딩 포함, 이후 Phase에 실제 기능 구현, verify 스킬 자동 생성",
+      "expected_output": "BRAND_NEW 타입으로 감지, AskUserQuestion으로 기술 스택 확인 (언어/프레임워크/테스트러너), Phase 1에 프로젝트 스캐폴딩 포함, 이후 Phase에 실제 기능 구현, skill-writer 병렬 실행으로 verify 스킬 자동 생성",
       "files": []
     },
     {
       "id": 3,
-      "skill": "verify-implementation",
-      "prompt": "방금 Phase 1 구현을 끝냈어. 검증해줘.",
-      "expected_output": "phase-1 관련 verify 스킬만 필터링, Subagent로 병렬 실행, 통합 리포트 생성, PLAN 문서의 Verification Status 자동 업데이트",
-      "files": []
+      "skill": "feature-planner",
+      "mode": "UPDATE",
+      "prompt": "인증 기능 계획에 2FA(이중 인증) Phase를 추가하고 싶어. Phase 3과 Phase 4 사이에 넣어줘.",
+      "expected_output": "기존 PLAN_auth.md를 읽고, Phase 3과 4 사이에 새 Phase 삽입, 이후 Phase 번호 재정렬, 새 Phase의 verify 스킬 생성, 영향받은 기존 스킬 이름 업데이트, 레지스트리 동기화",
+      "files": ["docs/plans/PLAN_auth.md"]
     },
     {
       "id": 4,
-      "skill": "verify-implementation",
-      "prompt": "전체 검증 돌려줘. 모든 verify 스킬 실행해봐.",
-      "expected_output": "등록된 모든 verify 스킬을 독립/의존 분류 후 병렬 실행, 통합 리포트에 모든 스킬 결과 포함, 이슈 발견 시 수정 옵션 제시",
-      "files": []
+      "skill": "feature-planner",
+      "mode": "COMPLETE",
+      "prompt": "인증 기능 계획이 다 끝났어. 완료 처리해줘.",
+      "expected_output": "모든 Phase Status가 Complete인지 확인, PLAN 문서 Status를 Completed로 변경, verify-phase-N 스킬들을 GRADUATE 처리 (범용 verify 스킬로 변환), 기존 Phase 스킬 ARCHIVED, 레지스트리 동기화",
+      "files": ["docs/plans/PLAN_auth.md"]
     },
     {
       "id": 5,
-      "skill": "manage-skills",
-      "prompt": "새로 파일 몇 개 추가했는데, 스킬 점검 좀 해줘.",
-      "expected_output": "3개 Subagent 병렬 분석 (git diff/스킬 갭/계획 문서), 새 파일이 기존 verify 스킬에 커버되지 않음을 감지, 기존 스킬 UPDATE 또는 새 스킬 CREATE 제안, 사용자 승인 후 스킬 생성/업데이트 + 레지스트리 동기화",
+      "skill": "verify-implementation",
+      "prompt": "방금 Phase 1 구현을 끝냈어. 검증해줘.",
+      "expected_output": "phase-1 관련 verify 스킬만 필터링, test-runner Subagent로 병렬 실행 (TDD 검증 모드 활성화), 통합 리포트에 TDD Compliance 섹션 포함 (Test-First 순서/R-G-R 증거/신규 코드 커버리지), PLAN 문서의 Verification Status 및 TDD 체크박스 자동 업데이트",
       "files": []
     },
     {
       "id": 6,
+      "skill": "verify-implementation",
+      "prompt": "전체 검증 돌려줘. 모든 verify 스킬 실행해봐.",
+      "expected_output": "등록된 모든 verify 스킬을 독립/의존 분류 후 test-runner 병렬 실행, 통합 리포트에 모든 스킬 결과 포함, 이슈 발견 시 수정 옵션 제시, 커버되지 않은 변경 파일 발견 시 /manage-skills 추천 메시지 표시",
+      "files": []
+    },
+    {
+      "id": 7,
+      "skill": "manage-skills",
+      "prompt": "새로 파일 몇 개 추가했는데, 스킬 점검 좀 해줘.",
+      "expected_output": "codebase-scanner로 변경사항/스킬갭/계획동기화 통합 분석, 새 파일이 기존 verify 스킬에 커버되지 않음을 감지, 기존 스킬 UPDATE 또는 새 스킬 CREATE 제안, 사용자 승인 후 skill-writer로 스킬 생성/업데이트 + 레지스트리 3곳 동기화, 완료 후 /verify-implementation 추천",
+      "files": []
+    },
+    {
+      "id": 8,
       "skill": "manage-skills",
       "prompt": "아직 verify 스킬이 하나도 없어. 이 프로젝트에 맞는 기본 스킬을 만들어줘.",
-      "expected_output": "Cold start 감지, 프로젝트 구조 분석, 기본 verify 스킬 세트 (build, test, lint) 제안 + 프로젝트 도메인에 맞는 추가 스킬 제안, 사용자 승인 후 생성 + 레지스트리 업데이트",
+      "expected_output": "Cold start 감지, 프로젝트 구조 분석, 기본 verify 스킬 세트 (build, test, lint) 제안 + 프로젝트 도메인에 맞는 추가 스킬 제안, 사용자 승인 후 skill-writer로 생성 + 레지스트리 3곳 업데이트, /verify-implementation 추천",
+      "files": []
+    },
+    {
+      "id": 9,
+      "skill": "verify-implementation",
+      "prompt": "검증 스킬이 하나도 없는데 검증 돌려봐.",
+      "expected_output": "등록된 스킬 0개 감지, 에러 대신 가이드 메시지 표시 (feature-planner 또는 manage-skills로 스킬 생성 안내), /feature-planner 추천",
+      "files": []
+    },
+    {
+      "id": 10,
+      "skill": "feature-planner",
+      "mode": "LIST",
+      "prompt": "현재 진행 중인 계획들 보여줘.",
+      "expected_output": "docs/plans/PLAN_*.md를 검색, 각 문서의 Status/Phase 진행률/최종 검증 결과를 요약 테이블로 표시",
       "files": []
     }
   ]
