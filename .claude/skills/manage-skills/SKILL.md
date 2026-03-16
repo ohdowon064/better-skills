@@ -367,6 +367,57 @@ cp .claude/skill-versions/<skill-name>/SKILL_<selected>.md .claude/skills/<skill
 > `/feature-planner`로 해당 기능의 개발 계획을 수립하면 체계적인 verify 스킬이 자동 생성됩니다.
 ```
 
+### Step 12: Evals Drift Detection
+
+스킬이 생성/수정/삭제될 때마다 `evals/evals.json`과 실제 스킬 내용의 불일치를 감지한다.
+
+**감지 절차:**
+
+1. `evals/evals.json`을 읽는다 (파일이 없으면 이 단계를 건너뛴다)
+2. 각 코어 스킬(dev, feature-planner, verify-implementation, manage-skills)의 SKILL.md를 읽어 주요 기능 목록을 추출한다:
+   - argument-hint에 정의된 인수/모드
+   - Workflow의 Step 이름과 번호
+   - 주요 동작 키워드 (AskUserQuestion, Subagent 호출, 출력 형식 등)
+3. evals.json의 각 테스트 케이스와 스킬 내용을 대조한다:
+
+```
+각 스킬에 대해:
+    스킬의 기능 중 evals에 테스트 케이스가 없는 것 → UNCOVERED
+    evals의 assertion이 스킬에서 삭제된 기능을 참조 → STALE
+    evals의 expected_output이 스킬의 현재 동작과 불일치 → OUTDATED
+```
+
+**불일치 유형:**
+
+| 유형 | 감지 조건 | 예시 |
+|------|----------|------|
+| UNCOVERED | 스킬에 새 모드/Step이 추가됐지만 evals에 관련 테스트 없음 | verify-implementation에 PLAN 지정 인수가 추가됐지만 테스트 없음 |
+| STALE | evals의 assertion이 스킬에서 삭제된 기능을 참조 | 삭제된 Step을 assertion에서 여전히 검증 |
+| OUTDATED | evals의 expected_output이 현재 스킬의 Step 번호/이름과 불일치 | Step 번호가 변경됐지만 expected_output은 이전 번호 참조 |
+
+**보고 및 제안:**
+
+불일치가 발견되면 보고서에 포함한다:
+
+```markdown
+### 📋 Evals 드리프트 감지
+
+| 스킬 | 유형 | 상세 | 제안 |
+|------|------|------|------|
+| verify-implementation | UNCOVERED | "PLAN_auth phase-2" 인수 처리가 evals에 없음 | 새 테스트 케이스 추가 필요 |
+| manage-skills | STALE | eval #7의 assertion이 삭제된 "레지스트리 3곳 동기화" 참조 | assertion 수정 필요 |
+| feature-planner | OUTDATED | eval #10의 expected_output이 LIST 모드의 충돌 감지 미반영 | expected_output 업데이트 필요 |
+```
+
+AskUserQuestion으로 확인한다:
+1. **자동 업데이트** — 감지된 불일치를 자동으로 수정 (STALE 제거, OUTDATED 갱신, UNCOVERED에 대한 테스트 케이스 초안 생성)
+2. **보고만** — 불일치 목록만 표시하고 수정은 사용자에게 맡김
+
+"자동 업데이트" 선택 시:
+- STALE: 해당 assertion을 제거하거나 현재 기능에 맞게 수정
+- OUTDATED: expected_output을 현재 스킬 내용에 맞게 갱신
+- UNCOVERED: 새 테스트 케이스 초안을 생성하여 evals.json에 추가 (assertion은 기본 수준으로 생성하고, 사용자가 보강할 것을 안내)
+
 ## Quality Standards
 
 생성/업데이트된 모든 스킬은 다음을 갖추어야 한다:
@@ -402,5 +453,6 @@ cp .claude/skill-versions/<skill-name>/SKILL_<selected>.md .claude/skills/<skill
 | `.claude/agents/skill-writer.md` | Subagent: verify 스킬 생성/업데이트 (병렬) |
 | `.claude/verify-history.md` | 검증 실행 이력 (스킬 효과성 분석) |
 | `.claude/skill-versions/` | 스킬 버전 스냅샷 디렉토리 (이력 조회/롤백) |
+| `evals/evals.json` | 스킬 테스트 케이스 (evals 드리프트 감지 대상) |
 | `CLAUDE.md` | 프로젝트 가이드라인 (Skills 테이블 관리) |
 | `docs/plans/PLAN_*.md` | 계획 문서 (Phase 상태 확인용) |

@@ -289,6 +289,21 @@
         "AskUserQuestion으로 계속 시도/건너뛰기/중단 선택지가 제시됨",
         "'중단' 선택 시 현재 상태가 저장되어 나중에 /dev PLAN_<name>으로 재개 가능"
       ]
+    },
+    {
+      "id": 21,
+      "skill": "manage-skills",
+      "prompt": "스킬 점검해줘. 최근에 verify-implementation에 복수 PLAN 기능을 추가했는데 evals도 확인해줘.",
+      "expected_output": "manage-skills가 스킬 유지보수 수행 후, evals/evals.json과 실제 스킬 내용의 불일치를 감지하여 UNCOVERED/STALE/OUTDATED 유형별로 보고, 자동 업데이트 또는 보고만 선택지 제시",
+      "files": [],
+      "assertions": [
+        "evals/evals.json을 읽어 기존 테스트 케이스를 파싱함",
+        "각 코어 스킬의 SKILL.md 내용과 evals의 테스트 케이스를 대조함",
+        "스킬에 추가된 기능 중 evals에 테스트가 없는 항목이 UNCOVERED로 감지됨",
+        "Evals 드리프트 감지 테이블이 보고서에 포함됨",
+        "AskUserQuestion으로 자동 업데이트/보고만 선택지가 제시됨",
+        "'자동 업데이트' 선택 시 UNCOVERED에 대한 테스트 케이스 초안이 evals.json에 추가됨"
+      ]
     }
   ]
 }
