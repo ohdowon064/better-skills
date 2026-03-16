@@ -77,7 +77,46 @@ git log --oneline <phase-start-ref>..HEAD
 - 소스 코드만 포함된 대규모 커밋 (테스트 없음)
 - 테스트와 소스가 항상 같은 커밋에 포함 (test-after 가능성)
 
-### 5c. 신규 코드 커버리지 (Incremental Coverage)
+### 5c. REFACTOR 정량 측정
+
+REFACTOR 단계의 효과를 정량적으로 측정한다. "refactor" 키워드가 포함된 커밋 전후를 비교한다:
+
+```bash
+# REFACTOR 커밋 식별
+git log --oneline <phase-start-ref>..HEAD | grep -i "refactor"
+
+# REFACTOR 직전 커밋과 현재 HEAD 비교
+```
+
+**측정 지표:**
+
+| 지표 | 측정 방법 | 개선 방향 |
+|------|----------|----------|
+| 파일 길이 변화 | `wc -l` 비교 (REFACTOR 전후) | 감소 = 좋음 |
+| 함수/메서드 수 | 언어별 패턴 `grep -c` (function, def, func 등) | 증가 = 분해가 진행됨 |
+| 중복 코드 | 동일 3줄 이상 블록 탐지 | 감소 = 좋음 |
+| 평균 함수 길이 | 총 라인 / 함수 수 | 감소 = 좋음 |
+
+```bash
+# 파일 길이 비교 (REFACTOR 전후)
+git show <pre-refactor-ref>:<file> | wc -l   # Before
+wc -l <file>                                  # After
+
+# 함수 수 비교 (TypeScript/JavaScript 예시)
+git show <pre-refactor-ref>:<file> | grep -cE '(function |=> \{|async |export (default )?function)'
+grep -cE '(function |=> \{|async |export (default )?function)' <file>
+
+# 중복 블록 탐지 (간이)
+awk 'NR>2{print prev2"\n"prev1"\n"$0} {prev2=prev1; prev1=$0}' <file> | sort | uniq -d | wc -l
+```
+
+**판별 기준:**
+- 파일 길이 또는 평균 함수 길이가 감소하면 PASS
+- 함수 수가 증가하면서 평균 길이가 감소하면 PASS (분해 성공)
+- REFACTOR 커밋이 없으면 "REFACTOR 미수행 — 리팩토링 권장"으로 WARN
+- 모든 지표가 악화되면 FAIL
+
+### 5d. 신규 코드 커버리지 (Incremental Coverage)
 
 Phase에서 추가/수정된 소스 파일의 커버리지를 별도로 확인한다:
 
@@ -111,6 +150,9 @@ TDD Compliance: (TDD 검증 모드일 때만)
     - user.ts → user.test.ts (❌ 소스 먼저 — 커밋 abc123)
   Red-Green-Refactor 증거: DETECTED / NOT_DETECTED
     - 3개 커밋에서 TDD 패턴 감지
+  REFACTOR 정량 측정: PASS/WARN/FAIL
+    - src/services/auth.ts: 120→95줄 (-21%), 함수 3→5개, 평균 40→19줄 ✅
+    - src/models/user.ts: 80→82줄 (+2%), 변화 미미 ⚠️
   신규 코드 커버리지: 87% (목표: 80%) PASS/FAIL
     - src/services/auth.ts: 92%
     - src/models/user.ts: 78% ⚠️ 목표 미달

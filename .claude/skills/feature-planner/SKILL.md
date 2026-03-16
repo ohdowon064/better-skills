@@ -72,13 +72,54 @@ argument-hint: "[선택: update PLAN_name, complete PLAN_name, list]"
 
 ### LIST 모드
 
-기존 계획 문서를 목록으로 표시한다:
+기존 계획 문서를 목록으로 표시하고, 복수 PLAN 간 충돌을 감지한다:
 
 ```bash
 ls docs/plans/PLAN_*.md 2>/dev/null
 ```
 
-각 문서의 Status, Phase 진행률, 최종 검증 결과를 요약한다.
+**Multi-PLAN Summary Table:**
+
+각 문서의 Status, Phase 진행률, 최종 검증 결과를 요약 테이블로 출력한다:
+
+```markdown
+## 현재 계획 목록
+
+| PLAN | Status | 진행률 | 현재 Phase | 최종 검증 | 수정 파일 수 |
+|------|--------|--------|-----------|----------|-------------|
+| PLAN_auth | 🔄 In Progress | 40% (2/5) | Phase 3 | ✅ 2026-03-15 | 12 |
+| PLAN_search | 🔄 In Progress | 20% (1/5) | Phase 2 | ❌ 2026-03-16 | 8 |
+| PLAN_ui | ✅ Completed | 100% (3/3) | — | ✅ 2026-03-14 | 15 |
+```
+
+**파일 충돌 감지:**
+
+복수 PLAN이 동시에 🔄 In Progress인 경우, 각 PLAN의 Phase Tasks에서 수정 대상 파일(File(s) 필드)을 추출하여 교차 비교한다:
+
+```bash
+# 각 PLAN의 현재/미래 Phase에서 대상 파일 추출
+grep -A2 "File(s):" docs/plans/PLAN_auth.md | grep '`' | sed 's/.*`\(.*\)`.*/\1/'
+grep -A2 "File(s):" docs/plans/PLAN_search.md | grep '`' | sed 's/.*`\(.*\)`.*/\1/'
+```
+
+동일 파일을 둘 이상의 PLAN이 수정하려는 경우 충돌 경고를 표시한다:
+
+```markdown
+### ⚠️ 파일 충돌 감지
+
+다음 파일이 여러 PLAN에서 동시에 수정 대상입니다:
+
+| 파일 | PLAN | Phase |
+|------|------|-------|
+| `src/middleware/auth.ts` | PLAN_auth | Phase 3 |
+| `src/middleware/auth.ts` | PLAN_search | Phase 2 |
+
+**권장 조치:**
+- 충돌하는 Phase의 개발 순서를 조정하세요 (한쪽을 먼저 완료)
+- 또는 파일을 분리하여 각 PLAN이 독립된 파일을 수정하도록 리팩토링하세요
+```
+
+충돌이 없으면 "충돌 없음 — 병렬 개발 안전" 메시지를 표시한다.
 
 ## Planning Workflow (CREATE 모드)
 

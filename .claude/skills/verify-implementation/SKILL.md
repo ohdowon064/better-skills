@@ -48,10 +48,49 @@ ls .claude/skills/verify-*/SKILL.md 2>/dev/null
 인수를 파싱하여 실행 대상을 결정한다:
 
 ```
-인수 없음            → 위 테이블의 모든 스킬 실행
-"phase-N"            → verify-phase-N-* 패턴에 매칭되는 스킬만 실행
-"--current-phase"    → docs/plans/PLAN_*.md에서 Status가 🔄 In Progress인 Phase를 찾아
-                       해당 Phase의 verify 스킬만 실행
+인수 없음                    → 위 테이블의 모든 스킬 실행
+"phase-N"                    → verify-phase-N-* 패턴에 매칭되는 스킬만 실행
+"--current-phase"            → docs/plans/PLAN_*.md에서 Status가 🔄 In Progress인 Phase를 찾아
+                               해당 Phase의 verify 스킬만 실행 (복수 PLAN 지원 — 아래 참조)
+"PLAN_auth"                  → 특정 PLAN의 전체 verify 스킬만 실행
+"PLAN_auth phase-2"          → 특정 PLAN의 특정 Phase verify 스킬만 실행
+```
+
+#### 복수 PLAN 동시 진행 처리
+
+`--current-phase`를 사용할 때 여러 PLAN이 동시에 🔄 In Progress 상태일 수 있다:
+
+```bash
+# 진행 중인 PLAN 찾기
+grep -l "🔄 In Progress" docs/plans/PLAN_*.md 2>/dev/null
+```
+
+**단일 PLAN인 경우:** 해당 PLAN에서 In Progress Phase의 verify 스킬을 실행한다.
+
+**복수 PLAN인 경우:** AskUserQuestion으로 사용자에게 선택을 요청한다:
+
+```markdown
+현재 진행 중인 PLAN이 2개입니다. 어떤 PLAN을 검증할까요?
+
+1. **PLAN_auth** — Phase 2 (API 엔드포인트) 진행 중
+2. **PLAN_search** — Phase 1 (인덱싱) 진행 중
+3. **모두 검증** — 두 PLAN의 진행 중인 Phase를 모두 검증
+```
+
+"모두 검증" 선택 시 각 PLAN의 Phase 스킬을 모두 수집하여 병렬 실행한다. 통합 리포트에서는 PLAN별로 그룹화하여 표시한다:
+
+```markdown
+### 요약
+
+#### PLAN_auth (Phase 2)
+| 스킬 | 결과 | 이슈 수 |
+|------|------|---------|
+| verify-phase-2-auth-api | ✅ PASS | 0 |
+
+#### PLAN_search (Phase 1)
+| 스킬 | 결과 | 이슈 수 |
+|------|------|---------|
+| verify-phase-1-search-index | ❌ FAIL | 1 |
 ```
 
 **등록된 스킬이 0개인 경우:**
@@ -133,10 +172,10 @@ Subagent가 스킬을 읽고, Workflow의 모든 검사를 수행하여, 각 검
 
 ### TDD Compliance (Phase 스킬에 대해서만)
 
-| Phase | Test-First 순서 | R-G-R 증거 | 신규 코드 커버리지 |
-|-------|----------------|------------|-------------------|
-| Phase 1 | ✅ 5/5 파일 | ✅ DETECTED | 87% (목표 80%) ✅ |
-| Phase 2 | ⚠️ 3/5 파일 | ✅ DETECTED | 78% (목표 80%) ❌ |
+| Phase | Test-First 순서 | R-G-R 증거 | REFACTOR 측정 | 신규 코드 커버리지 |
+|-------|----------------|------------|--------------|-------------------|
+| Phase 1 | ✅ 5/5 파일 | ✅ DETECTED | ✅ 평균 -18% 길이 | 87% (목표 80%) ✅ |
+| Phase 2 | ⚠️ 3/5 파일 | ✅ DETECTED | ⚠️ REFACTOR 미수행 | 78% (목표 80%) ❌ |
 
 **TDD 위반 상세:**
 - `src/services/payment.ts`: 소스가 테스트보다 2커밋 먼저 (커밋 abc123)
@@ -231,7 +270,45 @@ Subagent가 스킬을 읽고, Workflow의 모든 검사를 수행하여, 각 검
 
 이 분석은 통합 리포트의 마지막에 "스킬 건강 상태" 섹션으로 포함된다.
 
-### Step 9: Cross-Skill Recommendations
+### Step 9: False Positive 자동 학습
+
+`.claude/verify-history.md`의 실행 이력에서 사용자가 Skip한 항목을 분석하여, 반복적인 false positive에 대해 Exceptions 추가를 자동 제안한다.
+
+**분석 절차:**
+
+1. verify-history.md에서 최근 이력을 읽는다
+2. 동일 스킬의 동일 검사 항목이 **3회 연속 Skip**된 경우를 식별한다
+3. 해당 항목에 대해 자동으로 Exceptions 추가를 제안한다
+
+```markdown
+### 🔄 False Positive 학습 제안
+
+다음 검사 항목이 반복적으로 Skip되었습니다. Exceptions에 추가할까요?
+
+| 스킬 | 검사 항목 | 연속 Skip | 제안 |
+|------|----------|----------|------|
+| verify-auth | JWT 만료 시간 하드코딩 검사 | 5회 | 환경변수 방식도 허용하도록 Exceptions 추가 |
+| verify-lint | console.log 사용 검사 | 3회 | debug 모듈 사용 시 면제하도록 Exceptions 추가 |
+```
+
+AskUserQuestion으로 사용자에게 확인한다:
+1. **예, 모두 추가** — 제안된 모든 항목을 각 스킬의 Exceptions에 추가
+2. **개별 선택** — 각 항목을 하나씩 확인
+3. **아니오** — 이번에는 건너뛰기
+
+승인된 항목에 대해 `skill-writer` Subagent를 UPDATE 모드로 실행하여 해당 스킬의 Exceptions 섹션에 새 항목을 추가한다.
+
+**verify-history.md 기록 형식 (Skip 추적용):**
+
+기존 이력 테이블에 "Skip된 항목" 컬럼을 활용한다:
+
+```markdown
+| 날짜 | 스킬 | 결과 | 이슈 수 | 사용자 액션 | Skip된 항목 | 소요 시간 |
+|------|------|------|---------|------------|------------|----------|
+| 2026-03-16 | verify-auth | FAIL | 2 | skip | JWT 만료 검사 | 5s |
+```
+
+### Step 10: Cross-Skill Recommendations
 
 검증 결과를 분석하여 다른 스킬의 실행을 추천한다.
 

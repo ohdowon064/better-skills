@@ -133,6 +133,9 @@ Write tests FIRST, then implement to make them pass.
     - [ ] Remove duplication
     - [ ] Improve naming clarity
     - [ ] Add inline documentation
+    - [ ] Reduce average function length (verify-implementation이 정량 측정)
+  - Metrics (verify-implementation이 자동 측정):
+    - 파일 길이 변화, 함수 수 변화, 평균 함수 길이, 중복 코드
 
 #### Quality Gate ✋
 

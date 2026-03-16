@@ -244,7 +244,57 @@ GRADUATE 시:
 - Phase 특화 검사는 제거하고 범용 검사만 유지
 - 기존 Phase 스킬은 ARCHIVED로 표시
 
-### Step 8: Validation
+### Step 8: Skill Version Management
+
+`.claude/skill-versions/` 디렉토리에 보관된 스킬 스냅샷을 관리한다.
+
+**이력 조회:**
+
+```bash
+# 특정 스킬의 버전 이력
+ls -lt .claude/skill-versions/<skill-name>/SKILL_*.md 2>/dev/null
+```
+
+보고서에 버전 이력이 있는 스킬을 표시한다:
+
+```markdown
+### 스킬 버전 이력
+
+| 스킬 | 버전 수 | 최초 버전 | 최신 버전 |
+|------|---------|----------|----------|
+| verify-auth | 3 | 2026-03-10 | 2026-03-16 |
+| verify-build | 1 | 2026-03-12 | 2026-03-12 |
+```
+
+**롤백:**
+
+스킬 업데이트 후 검증에서 문제가 발생한 경우, 이전 버전으로 롤백할 수 있다. AskUserQuestion으로 확인한다:
+
+```markdown
+`verify-auth` 업데이트 후 검증 FAIL이 증가했습니다. 이전 버전으로 롤백할까요?
+
+1. **롤백** — SKILL_20260315_120000.md로 복원
+2. **유지** — 현재 버전 유지
+3. **비교** — 현재 버전과 이전 버전의 diff 확인
+```
+
+"비교" 선택 시:
+```bash
+diff .claude/skill-versions/<skill-name>/SKILL_<prev>.md .claude/skills/<skill-name>/SKILL.md
+```
+
+"롤백" 선택 시:
+```bash
+# 현재 버전도 스냅샷 보관 후 복원
+cp .claude/skills/<skill-name>/SKILL.md .claude/skill-versions/<skill-name>/SKILL_$(date +%Y%m%d_%H%M%S).md
+cp .claude/skill-versions/<skill-name>/SKILL_<selected>.md .claude/skills/<skill-name>/SKILL.md
+```
+
+**자동 정리:**
+
+버전이 10개 이상인 스킬은 가장 오래된 버전부터 삭제하여 최대 10개를 유지한다.
+
+### Step 9: Validation
 
 모든 편집 후:
 
@@ -257,7 +307,7 @@ GRADUATE 시:
 4. 업데이트된 각 스킬에서 탐지 명령어 하나를 드라이런
 5. Registered Verify Skills (SSOT) 테이블과 실제 `.claude/skills/verify-*/SKILL.md` 파일이 일치하는지 확인 (테이블에 있지만 파일 없음 / 파일 있지만 테이블에 없음)
 
-### Step 9: Summary Report
+### Step 10: Summary Report
 
 ```markdown
 ## 세션 스킬 유지보수 보고서
@@ -282,7 +332,7 @@ GRADUATE 시:
 - `path/to/file` — 면제 (사유)
 ```
 
-### Step 10: Cross-Skill Recommendations
+### Step 11: Cross-Skill Recommendations
 
 스킬 유지보수 결과를 분석하여 다른 스킬의 실행을 추천한다.
 
@@ -350,5 +400,6 @@ GRADUATE 시:
 | `.claude/agents/codebase-scanner.md` | Subagent: 변경사항/스킬갭/계획동기화 통합 분석 |
 | `.claude/agents/skill-writer.md` | Subagent: verify 스킬 생성/업데이트 (병렬) |
 | `.claude/verify-history.md` | 검증 실행 이력 (스킬 효과성 분석) |
+| `.claude/skill-versions/` | 스킬 버전 스냅샷 디렉토리 (이력 조회/롤백) |
 | `CLAUDE.md` | 프로젝트 가이드라인 (Skills 테이블 관리) |
 | `docs/plans/PLAN_*.md` | 계획 문서 (Phase 상태 확인용) |
