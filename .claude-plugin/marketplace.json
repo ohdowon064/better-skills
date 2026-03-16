@@ -1,11 +1,11 @@
 {
-    "name": "better-skills",
+    "name": "ohdowon064",
     "metadata": {
         "description": "Autonomous dev pipeline plugin for Claude Code. Spec in → Plan → TDD → Verify → Skill maintenance."
     },
     "description": "Autonomous dev pipeline plugin for Claude Code. Spec in → Plan → TDD → Verify → Skill maintenance.",
     "owner": {
-        "name": "dowon",
+        "name": "ohdowon064",
         "url": "https://github.com/ohdowon064"
     },
     "plugins": [
@@ -15,7 +15,7 @@
             "source": "./",
             "version": "1.0.0",
             "author": {
-                "name": "dowon",
+                "name": "ohdowon064",
                 "url": "https://github.com/ohdowon064"
             },
             "license": "MIT",
