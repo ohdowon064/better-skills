@@ -61,6 +61,45 @@ ls docs/plans/PLAN_*.md 2>/dev/null
 - `verify-phase-N-*` 스킬 생성됨
 - SSOT 레지스트리 업데이트됨
 
+### Step 2.5: 복수 PLAN 파일 충돌 감지
+
+새 PLAN이 생성된 후, 기존에 🔄 In Progress 상태인 다른 PLAN이 있는지 확인한다:
+
+```bash
+grep -l "🔄 In Progress" docs/plans/PLAN_*.md 2>/dev/null
+```
+
+**진행 중인 PLAN이 2개 이상인 경우:**
+
+각 PLAN의 Phase Tasks에서 수정 대상 파일(File(s) 필드)을 추출하여 교차 비교한다:
+
+```bash
+# 각 PLAN의 현재/미래 Phase에서 대상 파일 추출
+grep -A2 "File(s):" docs/plans/PLAN_*.md | grep '`' | sed 's/.*`\(.*\)`.*/\1/'
+```
+
+동일 파일을 둘 이상의 PLAN이 수정하려는 경우 경고를 표시한다:
+
+```markdown
+### ⚠️ 파일 충돌 감지
+
+다음 파일이 현재 PLAN과 진행 중인 다른 PLAN에서 동시에 수정 대상입니다:
+
+| 파일 | 현재 PLAN | 충돌 PLAN | Phase |
+|------|----------|----------|-------|
+| `src/middleware/auth.ts` | PLAN_payment | PLAN_auth | Phase 3 |
+
+**권장 조치:**
+1. 충돌하는 Phase의 개발 순서를 조정 (한쪽을 먼저 완료)
+2. 파일을 분리하여 각 PLAN이 독립된 파일을 수정하도록 리팩토링
+```
+
+AskUserQuestion으로 확인한다:
+1. **그대로 진행** — 충돌을 인지하고 개발 계속
+2. **순서 조정** — 충돌 PLAN을 먼저 완료한 후 진행
+
+충돌이 없으면 메시지 없이 Step 3으로 바로 진행한다.
+
 ### Step 3: Phase 순회 루프
 
 PLAN 문서를 읽어 Phase 목록을 추출한다. Status가 ⏳ Pending 또는 🔄 In Progress인 첫 번째 Phase부터 시작한다.

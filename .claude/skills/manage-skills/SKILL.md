@@ -244,55 +244,21 @@ GRADUATE 시:
 - Phase 특화 검사는 제거하고 범용 검사만 유지
 - 기존 Phase 스킬은 ARCHIVED로 표시
 
-### Step 8: Skill Version Management
+### Step 8: Skill Version Management (Subagent)
 
-`.claude/skill-versions/` 디렉토리에 보관된 스킬 스냅샷을 관리한다.
+**`version-manager`** Subagent를 실행하여 `.claude/skill-versions/`의 스냅샷을 관리한다.
 
-**이력 조회:**
+> **사용하는 Subagent**: `.claude/agents/version-manager.md`
 
-```bash
-# 특정 스킬의 버전 이력
-ls -lt .claude/skill-versions/<skill-name>/SKILL_*.md 2>/dev/null
-```
+**전달 항목:**
+- 이번 세션에서 업데이트된 스킬 이름 목록
+- `.claude/verify-history.md`에서 업데이트 후 FAIL이 증가한 스킬이 있으면 롤백 후보로 표시
 
-보고서에 버전 이력이 있는 스킬을 표시한다:
-
-```markdown
-### 스킬 버전 이력
-
-| 스킬 | 버전 수 | 최초 버전 | 최신 버전 |
-|------|---------|----------|----------|
-| verify-auth | 3 | 2026-03-10 | 2026-03-16 |
-| verify-build | 1 | 2026-03-12 | 2026-03-12 |
-```
-
-**롤백:**
-
-스킬 업데이트 후 검증에서 문제가 발생한 경우, 이전 버전으로 롤백할 수 있다. AskUserQuestion으로 확인한다:
-
-```markdown
-`verify-auth` 업데이트 후 검증 FAIL이 증가했습니다. 이전 버전으로 롤백할까요?
-
-1. **롤백** — SKILL_20260315_120000.md로 복원
-2. **유지** — 현재 버전 유지
-3. **비교** — 현재 버전과 이전 버전의 diff 확인
-```
-
-"비교" 선택 시:
-```bash
-diff .claude/skill-versions/<skill-name>/SKILL_<prev>.md .claude/skills/<skill-name>/SKILL.md
-```
-
-"롤백" 선택 시:
-```bash
-# 현재 버전도 스냅샷 보관 후 복원
-cp .claude/skills/<skill-name>/SKILL.md .claude/skill-versions/<skill-name>/SKILL_$(date +%Y%m%d_%H%M%S).md
-cp .claude/skill-versions/<skill-name>/SKILL_<selected>.md .claude/skills/<skill-name>/SKILL.md
-```
-
-**자동 정리:**
-
-버전이 10개 이상인 스킬은 가장 오래된 버전부터 삭제하여 최대 10개를 유지한다.
+**Subagent가 수행하는 내용:**
+- 전체 스킬의 버전 이력 조회 및 보고서 생성
+- 업데이트 후 FAIL 증가 스킬에 대해 롤백 제안 (AskUserQuestion으로 확인)
+- 롤백 실행 시 현재 버전도 스냅샷 보관 후 복원
+- 10개 초과 스냅샷 자동 정리
 
 ### Step 9: Validation
 
@@ -367,56 +333,24 @@ cp .claude/skill-versions/<skill-name>/SKILL_<selected>.md .claude/skills/<skill
 > `/feature-planner`로 해당 기능의 개발 계획을 수립하면 체계적인 verify 스킬이 자동 생성됩니다.
 ```
 
-### Step 12: Evals Drift Detection
+### Step 12: Evals Drift Detection (Subagent)
 
-스킬이 생성/수정/삭제될 때마다 `evals/evals.json`과 실제 스킬 내용의 불일치를 감지한다.
+**`evals-checker`** Subagent를 실행하여 `evals/evals.json`과 실제 스킬 내용의 불일치를 감지한다.
 
-**감지 절차:**
+> **사용하는 Subagent**: `.claude/agents/evals-checker.md`
 
-1. `evals/evals.json`을 읽는다 (파일이 없으면 이 단계를 건너뛴다)
-2. 각 코어 스킬(dev, feature-planner, verify-implementation, manage-skills)의 SKILL.md를 읽어 주요 기능 목록을 추출한다:
-   - argument-hint에 정의된 인수/모드
-   - Workflow의 Step 이름과 번호
-   - 주요 동작 키워드 (AskUserQuestion, Subagent 호출, 출력 형식 등)
-3. evals.json의 각 테스트 케이스와 스킬 내용을 대조한다:
+**전달 항목:**
+- 이번 세션에서 생성/수정/삭제된 스킬 목록
+- 자동 업데이트 모드 여부 (AskUserQuestion으로 사용자에게 확인)
 
-```
-각 스킬에 대해:
-    스킬의 기능 중 evals에 테스트 케이스가 없는 것 → UNCOVERED
-    evals의 assertion이 스킬에서 삭제된 기능을 참조 → STALE
-    evals의 expected_output이 스킬의 현재 동작과 불일치 → OUTDATED
-```
+AskUserQuestion 선택지:
+1. **자동 업데이트** — STALE 제거, OUTDATED 갱신, UNCOVERED 테스트 초안 생성
+2. **보고만** — 불일치 목록만 표시
 
-**불일치 유형:**
-
-| 유형 | 감지 조건 | 예시 |
-|------|----------|------|
-| UNCOVERED | 스킬에 새 모드/Step이 추가됐지만 evals에 관련 테스트 없음 | verify-implementation에 PLAN 지정 인수가 추가됐지만 테스트 없음 |
-| STALE | evals의 assertion이 스킬에서 삭제된 기능을 참조 | 삭제된 Step을 assertion에서 여전히 검증 |
-| OUTDATED | evals의 expected_output이 현재 스킬의 Step 번호/이름과 불일치 | Step 번호가 변경됐지만 expected_output은 이전 번호 참조 |
-
-**보고 및 제안:**
-
-불일치가 발견되면 보고서에 포함한다:
-
-```markdown
-### 📋 Evals 드리프트 감지
-
-| 스킬 | 유형 | 상세 | 제안 |
-|------|------|------|------|
-| verify-implementation | UNCOVERED | "PLAN_auth phase-2" 인수 처리가 evals에 없음 | 새 테스트 케이스 추가 필요 |
-| manage-skills | STALE | eval #7의 assertion이 삭제된 "레지스트리 3곳 동기화" 참조 | assertion 수정 필요 |
-| feature-planner | OUTDATED | eval #10의 expected_output이 LIST 모드의 충돌 감지 미반영 | expected_output 업데이트 필요 |
-```
-
-AskUserQuestion으로 확인한다:
-1. **자동 업데이트** — 감지된 불일치를 자동으로 수정 (STALE 제거, OUTDATED 갱신, UNCOVERED에 대한 테스트 케이스 초안 생성)
-2. **보고만** — 불일치 목록만 표시하고 수정은 사용자에게 맡김
-
-"자동 업데이트" 선택 시:
-- STALE: 해당 assertion을 제거하거나 현재 기능에 맞게 수정
-- OUTDATED: expected_output을 현재 스킬 내용에 맞게 갱신
-- UNCOVERED: 새 테스트 케이스 초안을 생성하여 evals.json에 추가 (assertion은 기본 수준으로 생성하고, 사용자가 보강할 것을 안내)
+**Subagent가 수행하는 내용:**
+- evals.json과 코어 스킬(dev, feature-planner, verify-implementation, manage-skills)의 내용 대조
+- 3가지 불일치 유형 감지: UNCOVERED(새 기능에 테스트 없음), STALE(삭제된 기능 참조), OUTDATED(현재 동작과 불일치)
+- 자동 업데이트 모드 시 evals.json 직접 수정
 
 ## Quality Standards
 
@@ -451,6 +385,8 @@ AskUserQuestion으로 확인한다:
 | `.claude/skills/manage-skills/SKILL.md` | 이 파일 자체 (Registered Verify Skills 관리) |
 | `.claude/agents/codebase-scanner.md` | Subagent: 변경사항/스킬갭/계획동기화 통합 분석 |
 | `.claude/agents/skill-writer.md` | Subagent: verify 스킬 생성/업데이트 (병렬) |
+| `.claude/agents/version-manager.md` | Subagent: 스킬 버전 이력 조회/롤백/정리 |
+| `.claude/agents/evals-checker.md` | Subagent: evals 드리프트 감지/자동 수정 |
 | `.claude/verify-history.md` | 검증 실행 이력 (스킬 효과성 분석) |
 | `.claude/skill-versions/` | 스킬 버전 스냅샷 디렉토리 (이력 조회/롤백) |
 | `evals/evals.json` | 스킬 테스트 케이스 (evals 드리프트 감지 대상) |

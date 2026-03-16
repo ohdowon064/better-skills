@@ -304,6 +304,49 @@
         "AskUserQuestion으로 자동 업데이트/보고만 선택지가 제시됨",
         "'자동 업데이트' 선택 시 UNCOVERED에 대한 테스트 케이스 초안이 evals.json에 추가됨"
       ]
+    },
+    {
+      "id": 22,
+      "skill": "manage-skills",
+      "prompt": "verify-auth 스킬을 업데이트한 뒤 검증이 갑자기 더 많이 실패해. 버전 관리 점검하고 롤백도 가능하면 해줘.",
+      "expected_output": "manage-skills가 Step 8에서 version-manager Subagent를 실행하여 스냅샷 이력 조회, FAIL 증가 스킬에 대해 롤백 제안, 사용자 선택에 따라 롤백 또는 diff 비교 수행",
+      "files": [],
+      "assertions": [
+        "version-manager Subagent가 실행됨 (manage-skills가 직접 버전 관리를 수행하지 않음)",
+        ".claude/skill-versions/verify-auth/ 디렉토리에서 스냅샷 목록이 조회됨",
+        "스킬 버전 이력 보고서가 생성됨",
+        "AskUserQuestion으로 롤백/유지/비교 선택지가 제시됨",
+        "롤백 시 현재 버전이 스냅샷으로 보관된 후 이전 버전으로 복원됨",
+        "10개 초과 스냅샷이 자동 정리됨"
+      ]
+    },
+    {
+      "id": 23,
+      "skill": "manage-skills",
+      "prompt": "스킬 점검해줘. evals.json도 같이 확인해서 불일치 있으면 자동으로 수정해줘.",
+      "expected_output": "manage-skills가 Step 12에서 evals-checker Subagent를 실행하여 evals.json과 스킬 내용을 대조, 불일치를 감지하고 자동 업데이트 수행",
+      "files": [],
+      "assertions": [
+        "evals-checker Subagent가 실행됨 (manage-skills가 직접 evals 감지를 수행하지 않음)",
+        "evals-checker가 코어 스킬의 SKILL.md를 읽어 기능 목록을 추출함",
+        "UNCOVERED/STALE/OUTDATED 3가지 유형의 불일치가 감지됨",
+        "자동 업데이트 모드로 실행되어 evals.json이 직접 수정됨",
+        "STALE assertion 제거, OUTDATED expected_output 갱신, UNCOVERED 테스트 초안 생성이 수행됨"
+      ]
+    },
+    {
+      "id": 24,
+      "skill": "dev",
+      "prompt": "결제 기능을 만들어줘. 이미 인증 기능(PLAN_auth)을 개발 중이야.",
+      "expected_output": "새 PLAN_payment 생성 후 Step 2.5에서 기존 PLAN_auth와의 파일 충돌을 자동 감지, 충돌 경고 표시 후 사용자에게 진행/순서 조정 선택지 제시",
+      "files": ["docs/plans/PLAN_auth.md"],
+      "assertions": [
+        "PLAN_payment 생성 후 기존 🔄 In Progress PLAN_auth가 감지됨",
+        "각 PLAN의 Phase Tasks에서 수정 대상 파일(File(s) 필드)이 추출됨",
+        "동일 파일을 수정하는 경우 파일 충돌 감지 테이블이 표시됨",
+        "AskUserQuestion으로 '그대로 진행' / '순서 조정' 선택지가 제시됨",
+        "충돌이 없으면 메시지 없이 Step 3로 바로 진행됨"
+      ]
     }
   ]
 }
