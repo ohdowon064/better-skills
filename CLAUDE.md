@@ -1,6 +1,6 @@
-# Project Guidelines
+# better-skills
 
-이 프로젝트는 통합 개발 라이프사이클 스킬 시스템을 사용합니다.
+Claude Code를 위한 자율 개발 파이프라인 스킬 시스템입니다.
 
 ## Development Workflow
 
