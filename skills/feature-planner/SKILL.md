@@ -67,7 +67,7 @@ argument-hint: "[선택: update PLAN_name, complete PLAN_name, list]"
 3. 모든 `verify-phase-N-*` 스킬에 대해 GRADUATE를 트리거한다:
    - 범용 `verify-<name>` 스킬로 변환 (Phase 특화 검사 제거)
    - 기존 Phase 스킬은 ARCHIVED로 표시
-4. 레지스트리 동기화 (manage-skills, verify-implementation, CLAUDE.md)
+4. 레지스트리 동기화 (skill-registry.json)
 5. 완료 보고서 출력
 
 ### LIST 모드
@@ -321,9 +321,7 @@ N개의 `skill-writer` 중 일부가 실패한 경우:
 
 실패한 스킬 없이도 해당 Phase의 TDD 개발은 진행 가능하다. 검증 단계(Step 3c)에서 해당 스킬이 없으면 SKIP 처리된다.
 
-**모든 병렬 생성이 완료된 후** (부분 실패 포함), 성공한 스킬에 대해 레지스트리를 업데이트:
-1. **`.claude/skill-registry.json`의 `skills` 배열에 새 스킬 객체 추가** (SSOT — Single Source of Truth)
-2. `CLAUDE.md`의 Skills 테이블에 추가
+**모든 병렬 생성이 완료된 후** (부분 실패 포함), 성공한 스킬에 대해 **`.claude/skill-registry.json`의 `skills` 배열에 새 스킬 객체를 추가**한다 (SSOT — Single Source of Truth).
 
 > verify-implementation은 런타임에 skill-registry.json을 읽으므로, 별도 업데이트가 불필요하다.
 
@@ -393,5 +391,4 @@ BRAND_NEW 레포에서는 AskUserQuestion으로 사용자에게 커버리지 목
 | `agents/codebase-scanner.md` | Step 0 Subagent: 프로젝트 컨텍스트 통합 분석 |
 | `agents/plan-writer.md` | Step 4 Subagent: 계획 문서 작성 |
 | `agents/skill-writer.md` | Step 5 Subagent: verify 스킬 생성 (병렬) |
-| `CLAUDE.md` | 프로젝트 가이드라인 (Skills 테이블 업데이트) |
 | `docs/plans/PLAN_*.md` | 생성된 계획 문서들 |

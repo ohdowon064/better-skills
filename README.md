@@ -139,7 +139,7 @@ CREATED → ACTIVE → GRADUATED → ARCHIVED
 
 ### SSOT 레지스트리
 
-`.claude/skill-registry.json`이 verify 스킬 목록의 유일한 정식 소스입니다. verify-implementation, feature-planner, CLAUDE.md는 모두 이 파일을 런타임에 참조합니다.
+`.claude/skill-registry.json`이 verify 스킬 목록의 유일한 정식 소스입니다. verify-implementation, feature-planner는 모두 이 파일을 런타임에 참조합니다.
 
 ## 디렉토리 구조
 

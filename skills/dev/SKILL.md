@@ -319,4 +319,3 @@ Phase 2 검증이 3회 연속 실패했습니다.
 | `agents/skill-writer.md` | feature-planner/manage-skills가 사용 |
 | `agents/test-runner.md` | verify-implementation이 사용 |
 | `docs/plans/PLAN_*.md` | 계획 문서 (생성/읽기/업데이트) |
-| `CLAUDE.md` | 프로젝트 가이드라인 |

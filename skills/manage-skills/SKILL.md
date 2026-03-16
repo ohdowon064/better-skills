@@ -28,7 +28,7 @@ argument-hint: "[선택사항: 특정 스킬 이름 또는 집중할 영역]"
 
 **`.claude/skill-registry.json`이 verify 스킬 목록의 유일한 정식 소스(SSOT)이다.** 프롬프트 크기와 데이터를 분리하여, 스킬이 늘어나도 이 파일의 토큰 수가 증가하지 않는다.
 
-verify-implementation, CLAUDE.md, feature-planner는 모두 런타임에 `.claude/skill-registry.json`을 읽어 동기화한다.
+verify-implementation, feature-planner는 모두 런타임에 `.claude/skill-registry.json`을 읽어 동기화한다.
 
 **JSON 구조:**
 
@@ -276,12 +276,9 @@ AskUserQuestion을 사용하여 확인한다.
 
 4. **레지스트리 업데이트** — 모든 병렬 생성이 완료된 후 업데이트:
 
-   **4a. `.claude/skill-registry.json` — SSOT:**
+   **`.claude/skill-registry.json` — SSOT:**
    - `skills` 배열에 새 스킬 객체 추가
    - `lifecycle`을 `CREATED`로 설정, `createdAt`에 현재 시각 기록
-
-   **4b. `CLAUDE.md`:**
-   - Skills 테이블에 새 행 추가
 
    > verify-implementation은 런타임에 skill-registry.json을 읽으므로 별도 업데이트 불필요
 
@@ -363,8 +360,6 @@ GRADUATE 시:
 
 ### 업데이트된 레지스트리:
 - `.claude/skill-registry.json`: 스킬 레지스트리
-- `verify-implementation/SKILL.md`: Target Skills 테이블
-- `CLAUDE.md`: Skills 테이블
 
 ### EXEMPT (적용 스킬 없음):
 - `path/to/file` — 면제 (사유)
@@ -459,8 +454,7 @@ AskUserQuestion 선택지:
 4. **테스트 픽스처** — `fixtures/`, `__fixtures__/`, `test-data/` 내 파일
 5. **벤더/서드파티 코드** — `vendor/`, `node_modules/`
 6. **CI/CD 설정** — `.github/`, `.gitlab-ci.yml`, `Dockerfile`
-7. **CLAUDE.md 자체** — 문서 업데이트이므로 검증 불필요
-8. **영향받지 않은 스킬** — UNAFFECTED로 표시된 스킬은 검토 불필요
+7. **영향받지 않은 스킬** — UNAFFECTED로 표시된 스킬은 검토 불필요
 
 ## Related Files
 
@@ -477,5 +471,4 @@ AskUserQuestion 선택지:
 | `.claude/verify-history.json` | 검증 실행 이력 JSON (최근 100건 rotate, 스킬 효과성 분석) |
 | `.claude/skill-versions/` | 스킬 버전 스냅샷 디렉토리 (이력 조회/롤백) |
 | `evals/evals.json` | 스킬 테스트 케이스 (evals 드리프트 감지 대상) |
-| `CLAUDE.md` | 프로젝트 가이드라인 (Skills 테이블 관리) |
 | `docs/plans/PLAN_*.md` | 계획 문서 (Phase 상태 확인용) |

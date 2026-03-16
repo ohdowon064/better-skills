@@ -412,5 +412,4 @@ AskUserQuestion으로 사용자에게 확인한다:
 | `skills/feature-planner/SKILL.md` | 계획 수립 (verify 스킬 생성 트리거) |
 | `agents/test-runner.md` | Subagent: 개별 verify 스킬 실행 (병렬) |
 | `.claude/verify-history.json` | 검증 실행 이력 JSON (최근 100건 rotate, 스킬 효과성 추적) |
-| `CLAUDE.md` | 프로젝트 가이드라인 |
 | `docs/plans/PLAN_*.md` | 계획 문서 (Verification Status 업데이트 대상) |
