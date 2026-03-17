@@ -27,4 +27,3 @@
 | `.claude/skill-versions/` | version-manager만 |
 | `.claude/skills/verify-*/` | skill-writer만 |
 | `.claude/skill-registry.json` | feature-planner, manage-skills |
-| `evals/evals.json` | evals-checker만 |

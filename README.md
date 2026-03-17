@@ -93,7 +93,6 @@ claude plugin install github:your-username/better-skills --scope project
 | `skill-writer` | verify 스킬 CRUD (병렬 실행) | feature-planner, manage-skills |
 | `test-runner` | 개별 verify 스킬 실행 + TDD 순서 검증 | verify-implementation |
 | `version-manager` | 스킬 스냅샷 이력 조회 / 롤백 / 정리 | manage-skills |
-| `evals-checker` | evals.json 드리프트 감지 | manage-skills |
 
 ## 주요 개념
 
@@ -161,10 +160,7 @@ better-skills/
 │   ├── plan-writer.md                  # 계획 문서 작성
 │   ├── skill-writer.md                 # verify 스킬 생성/수정
 │   ├── test-runner.md                  # 검증 실행 (병렬)
-│   ├── version-manager.md              # 스킬 버전 이력/롤백/정리
-│   └── evals-checker.md                # evals 드리프트 감지/수정
-└── evals/
-    └── evals.json                      # 스킬 테스트 케이스 (가상 스펙)
+│   └── version-manager.md              # 스킬 버전 이력/롤백/정리
 ```
 
 ### 런타임에 프로젝트에 생성되는 파일
@@ -239,7 +235,7 @@ claude plugin install /path/to/better-skills --scope project
 ### 서브에이전트 실패
 
 - 핵심 경로 (plan-writer, version-manager snapshot) — 재시도 1회, 재실패 시 사용자에게 보고
-- 비핵심 경로 (evals-checker, version-manager manage) — 건너뛰고 계속 진행
+- 비핵심 경로 (version-manager manage) — 건너뛰고 계속 진행
 - 병렬 실행 중 부분 실패 — 성공한 결과 유지, 실패분만 재시도
 
 ## Cross-Skill 추천

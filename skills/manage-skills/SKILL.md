@@ -372,7 +372,6 @@ GRADUATE 시:
 | skill-writer (UPDATE ×N) | Step 5b | ⚠️ 1/3 실패 (재시도 성공) |
 | skill-writer (CREATE ×M) | Step 6 | ✅ 성공 |
 | version-manager (manage) | Step 8 | ✅ 성공 |
-| evals-checker | Step 12 | ⏭️ 건너뜀 (에이전트 실패) |
 ```
 
 ### Step 11: Cross-Skill Recommendations
@@ -410,30 +409,6 @@ GRADUATE 시:
 > `/feature-planner`로 해당 기능의 개발 계획을 수립하면 체계적인 verify 스킬이 자동 생성됩니다.
 ```
 
-### Step 12: Evals Drift Detection (Subagent)
-
-**`evals-checker`** Subagent를 실행하여 `evals/evals.json`과 실제 스킬 내용의 불일치를 감지한다.
-
-> **사용하는 Subagent**: `agents/evals-checker.md`
-
-**전달 항목:**
-- 이번 세션에서 생성/수정/삭제된 스킬 목록
-- 자동 업데이트 모드 여부 (AskUserQuestion으로 사용자에게 확인)
-
-AskUserQuestion 선택지:
-1. **자동 업데이트** — STALE 제거, OUTDATED 갱신, UNCOVERED 테스트 초안 생성
-2. **보고만** — 불일치 목록만 표시
-
-**Subagent가 수행하는 내용:**
-- evals.json과 코어 스킬(dev, feature-planner, verify-implementation, manage-skills)의 내용 대조
-- 3가지 불일치 유형 감지: UNCOVERED(새 기능에 테스트 없음), STALE(삭제된 기능 참조), OUTDATED(현재 동작과 불일치)
-- 자동 업데이트 모드 시 evals.json 직접 수정
-
-**evals-checker 실패 처리:**
-- 재시도 없이 건너뛴다.
-- 보고서에 "⚠️ evals 드리프트 감지를 건너뜁니다"로 표시하고 Step 10(Summary Report)으로 계속 진행한다.
-- evals-checker는 비핵심 경로이며, 다음 manage-skills 실행 시 재감지할 수 있다.
-
 ## Quality Standards
 
 생성/업데이트된 모든 스킬은 다음을 갖추어야 한다:
@@ -467,8 +442,6 @@ AskUserQuestion 선택지:
 | `agents/codebase-scanner.md` | Subagent: 변경사항/스킬갭/계획동기화 통합 분석 |
 | `agents/skill-writer.md` | Subagent: verify 스킬 생성/업데이트 (병렬) |
 | `agents/version-manager.md` | Subagent: 스킬 버전 이력 조회/롤백/정리 |
-| `agents/evals-checker.md` | Subagent: evals 드리프트 감지/자동 수정 |
 | `.claude/verify-history.json` | 검증 실행 이력 JSON (최근 100건 rotate, 스킬 효과성 분석) |
 | `.claude/skill-versions/` | 스킬 버전 스냅샷 디렉토리 (이력 조회/롤백) |
-| `evals/evals.json` | 스킬 테스트 케이스 (evals 드리프트 감지 대상) |
 | `docs/plans/PLAN_*.md` | 계획 문서 (Phase 상태 확인용) |

@@ -289,12 +289,11 @@ Phase 2 검증이 3회 연속 실패했습니다.
 | version-manager (snapshot) | 재시도 1회. 재실패 시 skill-writer UPDATE를 중단하고 사용자에게 "스냅샷 실패로 업데이트를 건너뜁니다" 보고 |
 | skill-writer (병렬 N개) | 성공한 스킬은 유지, 실패한 스킬만 순차 재시도 1회. 재실패 시 보고서에 "업데이트 실패" 표시 |
 | version-manager (manage) | 재시도 1회. 재실패 시 보고서에서 버전 이력 섹션을 "조회 실패"로 표시하고 계속 |
-| evals-checker | 재시도 없이 건너뜀. 보고서에 "evals 드리프트 감지를 건너뜁니다" 표시 |
 
 **공통 원칙:**
 1. 재시도는 최대 1회, 동일 입력으로 실행
 2. 핵심 경로(plan-writer, version-manager snapshot)의 실패는 해당 단계를 중단하고 사용자에게 보고
-3. 비핵심 경로(evals-checker, version-manager manage)의 실패는 건너뛰고 계속 진행
+3. 비핵심 경로(version-manager manage)의 실패는 건너뛰고 계속 진행
 4. 병렬 실행 중 부분 실패는 성공한 결과를 유지하고 실패분만 재시도
 5. 모든 실패는 최종 보고서의 "에이전트 실행 상태" 섹션에 기록
 
