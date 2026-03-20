@@ -249,21 +249,25 @@ Phase N: [이름]
 
 사용자가 승인한 후에만 문서를 생성한다.
 
-### Step 4: Plan Document Creation (Subagent)
+### Step 4: Plan Document Creation
 
-승인된 Phase 분해를 바탕으로 **`plan-writer`** Subagent를 실행하여 계획 문서를 생성한다.
+승인된 Phase 분해를 바탕으로 계획 문서를 직접 생성한다.
 
-> **사용하는 Subagent**: `agents/plan-writer.md`
+**실행 절차:**
+1. `skills/feature-planner/plan-template.md`를 읽는다
+2. 프로젝트 컨텍스트(Step 0)의 감지된 명령어로 Quality Gate의 Validation Commands를 채운다
+3. 각 Phase를 TDD Red-Green-Refactor 구조로 작성한다
+4. Risk Assessment, Rollback Strategy, Verification Status 섹션을 채운다
+5. `docs/plans/PLAN_<feature-name>.md`로 저장한다
 
-`plan-writer`에게 다음 정보를 전달한다:
-1. 프로젝트 컨텍스트 (Step 0 결과)
-2. 기능 요구사항
-3. 승인된 Phase 분해
-4. `plan-template.md` 경로
+**작성 규칙:**
+- Quality Gate의 검증 명령어는 반드시 프로젝트 컨텍스트에서 감지된 실제 명령어를 사용한다
+- `[your test command]` 같은 플레이스홀더를 남기지 않는다
+- 감지되지 않은 명령어는 해당 체크 항목을 "수동 확인 필요"로 표시한다
+- 모든 체크박스는 미체크 상태로 생성한다
+- 각 Phase의 Tasks에 대상 파일 경로를 구체적으로 명시한다
 
-`plan-writer`가 `docs/plans/PLAN_<feature-name>.md` 문서를 생성하고 경로를 반환한다.
-
-문서에 포함되는 내용:
+**문서에 포함되는 내용:**
 - Overview와 목표
 - Architecture Decisions (근거와 트레이드오프)
 - 전체 Phase 분해 (체크박스 포함)
@@ -272,6 +276,21 @@ Phase N: [이름]
 - Phase별 Rollback Strategy
 - Progress Tracking 섹션
 - Verification Status 섹션 (verify-implementation 연동)
+
+**UPDATE 시 계획 문서 수정 절차:**
+1. 기존 PLAN 문서를 읽는다
+2. 수정 유형에 따라:
+   - ADD_PHASE: 지정된 위치에 새 Phase 삽입, 이후 Phase 번호 재정렬
+   - MODIFY_PHASE: 해당 Phase의 Tasks/Quality Gate/대상 파일 수정
+   - DELETE_PHASE: Phase 제거 후 번호 재정렬, Verification Status에서도 제거
+   - UPDATE_REQUIREMENTS: Overview/Success Criteria 수정, 영향받는 Phase 식별
+3. Progress Tracking의 전체 진행률을 재계산한다
+4. Last Updated 날짜를 갱신한다
+
+**COMPLETE 시 계획 문서 완료 처리:**
+1. 모든 Phase의 Status가 ✅ Complete인지 확인한다
+2. Status를 "✅ Completed"로, Overall Progress를 100%로 변경한다
+3. Estimated Completion 날짜를 실제 완료일로 업데이트한다
 
 ### Step 5: Verify Skill Generation (Subagent 병렬 생성)
 
@@ -390,6 +409,5 @@ BRAND_NEW 레포에서는 AskUserQuestion으로 사용자에게 커버리지 목
 | `skills/verify-implementation/SKILL.md` | 검증 실행 스킬 (생성된 verify 스킬 등록) |
 | `skills/manage-skills/SKILL.md` | 스킬 유지보수 (생성된 verify 스킬 등록) |
 | `agents/codebase-scanner.md` | Step 0 Subagent: 프로젝트 컨텍스트 통합 분석 |
-| `agents/plan-writer.md` | Step 4 Subagent: 계획 문서 작성 |
 | `agents/skill-writer.md` | Step 5 Subagent: verify 스킬 생성 (병렬) |
 | `docs/plans/PLAN_*.md` | 생성된 계획 문서들 |

@@ -103,7 +103,6 @@ claude plugin install github:ohdowon064/better-skills --scope project
 | 에이전트 | 역할 | 사용처 |
 |---------|------|--------|
 | `codebase-scanner` | 프로젝트 환경 통합 분석 (구조, 테스트, 린터, CI/CD, git 변경사항) | feature-planner, manage-skills |
-| `plan-writer` | Phase 기반 TDD 계획 문서 작성/수정 | feature-planner |
 | `skill-writer` | verify 스킬 생성/업데이트 (병렬 실행) | feature-planner, manage-skills |
 | `test-runner` | 개별 verify 스킬 실행 + TDD 순서 검증 | verify-implementation |
 | `code-reviewer` | 코드 설계/보안/성능 리뷰 (Phase별 + 통합) | dev, code-review |
@@ -167,7 +166,6 @@ better-skills/
 │   └── code-review/SKILL.md            # 코드 리뷰 (사용자 직접 호출)
 ├── agents/
 │   ├── codebase-scanner.md             # 프로젝트 컨텍스트 분석
-│   ├── plan-writer.md                  # 계획 문서 작성
 │   ├── skill-writer.md                 # verify 스킬 생성/수정
 │   ├── test-runner.md                  # 검증 실행 (병렬)
 │   └── code-reviewer.md               # 코드 리뷰 (설계/보안/성능)
@@ -244,7 +242,7 @@ claude plugin install /path/to/better-skills --scope project
 
 | 경로 | 전략 |
 |------|------|
-| 핵심 경로 (plan-writer) | 재시도 1회, 재실패 시 사용자에게 보고 후 중단 |
+| 핵심 경로 (feature-planner PLAN 생성) | 실패 시 사용자에게 보고 후 중단 |
 | 병렬 실행 (skill-writer, test-runner) | 성공한 결과 유지, 실패분만 순차 재시도 1회 |
 | 비핵심 경로 (code-reviewer) | 재시도 1회, 재실패 시 건너뛰고 계속 진행 |
 | 폴백 가능 (codebase-scanner) | 직접 `git diff`, `ls` 등으로 최소 컨텍스트 수집 후 계속 |
