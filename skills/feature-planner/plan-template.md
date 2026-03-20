@@ -186,7 +186,7 @@ Run: `/verify-implementation phase-1`
 
 ---
 
-## ✅ Verification Status (Auto-updated by verify-implementation)
+## ✅ Verification Status (Auto-updated by verify-implementation, dev)
 
 | Phase | Verify Skill | Last Run | Result | Review | Issues |
 |-------|-------------|----------|--------|--------|--------|
