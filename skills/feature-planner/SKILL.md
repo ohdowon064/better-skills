@@ -59,17 +59,14 @@ argument-hint: "[선택: update PLAN_name, complete PLAN_name, list]"
 
 ### COMPLETE 모드
 
-모든 Phase가 완료된 계획을 정리한다:
+모든 Phase가 완료된 계획의 PLAN 문서를 정리한다. 스킬 통합/삭제는 manage-skills의 책임이다.
 
 1. PLAN 문서의 모든 Phase Status가 ✅ Complete인지 확인한다
    - 미완료 Phase가 있으면 경고하고 중단한다
 2. PLAN 문서의 Status를 "✅ Completed"로 변경한다
-3. 모든 `verify-phase-N-*` 스킬을 범용 스킬로 통합한다:
-   - `skill-writer` CREATE로 범용 `verify-<name>` 스킬 생성 (Phase 특화 검사 제거)
-   - 기존 `verify-phase-N-*` 스킬의 파일 삭제 + 레지스트리에서 제거
-   - 새 범용 스킬을 레지스트리에 추가
-4. 레지스트리 동기화 (skill-registry.json)
-5. 완료 보고서 출력
+3. 완료 보고서 출력
+
+> **스킬 정리(verify-phase-N-* → 범용 스킬 통합, 불필요 스킬 삭제)는 이후 manage-skills가 수행한다.** feature-planner는 PLAN 문서 상태만 관리한다.
 
 ### LIST 모드
 
