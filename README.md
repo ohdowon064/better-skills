@@ -1,6 +1,6 @@
 # better-skills
 
-Claude Code를 위한 자율 개발 파이프라인 스킬 시스템.
+Claude Code를 위한 자율 개발 파이프라인 플러그인.
 
 기획서를 넣으면 계획 수립, TDD 개발, 검증, 스킬 유지보수까지 자동으로 실행됩니다.
 
@@ -22,7 +22,7 @@ claude plugin install /path/to/better-skills --scope project
 claude plugin install /path/to/better-skills
 
 # GitHub에서 직접 설치
-claude plugin install github:your-username/better-skills --scope project
+claude plugin install github:ohdowon064/better-skills --scope project
 ```
 
 설치 후 Claude Code가 `skills/`와 `agents/` 디렉토리를 자동으로 인식합니다.
@@ -54,6 +54,12 @@ claude plugin install github:your-username/better-skills --scope project
 # 계획만 수립
 /feature-planner
 
+# 기존 계획 수정
+/feature-planner update PLAN_auth
+
+# 계획 완료 처리
+/feature-planner complete PLAN_auth
+
 # 검증만 실행
 /verify-implementation
 /verify-implementation phase-1
@@ -80,7 +86,7 @@ claude plugin install github:your-username/better-skills --scope project
 | 스킬 | 설명 |
 |------|------|
 | `/dev` | 전체 파이프라인 오케스트레이터. 기획서 → 완성된 기능까지 자동 실행 |
-| `/feature-planner` | 기능을 3~7개 Phase로 분해. CREATE / UPDATE / COMPLETE / LIST 모드 |
+| `/feature-planner` | 기능을 3~7개 Phase로 분해. CREATE / UPDATE / COMPLETE 모드 |
 | `/verify-implementation` | verify 스킬을 서브에이전트로 병렬 실행하여 통합 검증 리포트 생성 |
 | `/manage-skills` | 코드 변경에 맞춰 verify 스킬의 드리프트 탐지 및 수정 |
 
@@ -88,11 +94,10 @@ claude plugin install github:your-username/better-skills --scope project
 
 | 에이전트 | 역할 | 사용처 |
 |---------|------|--------|
-| `codebase-scanner` | 프로젝트 환경 통합 분석 (언어, 테스트, 린터, CI/CD) | feature-planner, manage-skills |
-| `plan-writer` | Phase 기반 계획 문서 작성 | feature-planner |
-| `skill-writer` | verify 스킬 CRUD (병렬 실행) | feature-planner, manage-skills |
+| `codebase-scanner` | 프로젝트 환경 통합 분석 (구조, 테스트, 린터, CI/CD, git 변경사항) | feature-planner, manage-skills |
+| `plan-writer` | Phase 기반 TDD 계획 문서 작성/수정 | feature-planner |
+| `skill-writer` | verify 스킬 생성/업데이트 (병렬 실행) | feature-planner, manage-skills |
 | `test-runner` | 개별 verify 스킬 실행 + TDD 순서 검증 | verify-implementation |
-| `version-manager` | 스킬 스냅샷 이력 조회 / 롤백 / 정리 | manage-skills |
 
 ## 주요 개념
 
@@ -147,7 +152,8 @@ CREATED → ACTIVE → GRADUATED → ARCHIVED
 ```
 better-skills/
 ├── .claude-plugin/
-│   └── plugin.json                     # 플러그인 매니페스트
+│   ├── plugin.json                     # 플러그인 매니페스트
+│   └── marketplace.json                # 마켓플레이스 등록 정보
 ├── skills/
 │   ├── dev/SKILL.md                    # 파이프라인 오케스트레이터
 │   ├── feature-planner/
@@ -159,8 +165,7 @@ better-skills/
 │   ├── codebase-scanner.md             # 프로젝트 컨텍스트 분석
 │   ├── plan-writer.md                  # 계획 문서 작성
 │   ├── skill-writer.md                 # verify 스킬 생성/수정
-│   ├── test-runner.md                  # 검증 실행 (병렬)
-│   └── version-manager.md              # 스킬 버전 이력/롤백/정리
+│   └── test-runner.md                  # 검증 실행 (병렬)
 ```
 
 ### 런타임에 프로젝트에 생성되는 파일
@@ -170,7 +175,6 @@ your-project/
 ├── .claude/
 │   ├── skills/verify-*/SKILL.md        # 자동 생성된 검증 스킬
 │   ├── skill-registry.json             # 스킬 레지스트리 SSOT
-│   ├── skill-versions/*/SKILL_*.md     # 스킬 스냅샷
 │   └── verify-history.json             # 검증 실행 이력 (최근 100건)
 └── docs/plans/PLAN_*.md                # 계획 문서
 ```
@@ -234,9 +238,11 @@ claude plugin install /path/to/better-skills --scope project
 
 ### 서브에이전트 실패
 
-- 핵심 경로 (plan-writer, version-manager snapshot) — 재시도 1회, 재실패 시 사용자에게 보고
-- 비핵심 경로 (version-manager manage) — 건너뛰고 계속 진행
-- 병렬 실행 중 부분 실패 — 성공한 결과 유지, 실패분만 재시도
+| 경로 | 전략 |
+|------|------|
+| 핵심 경로 (plan-writer) | 재시도 1회, 재실패 시 사용자에게 보고 후 중단 |
+| 병렬 실행 (skill-writer, test-runner) | 성공한 결과 유지, 실패분만 순차 재시도 1회 |
+| 폴백 가능 (codebase-scanner) | 직접 `git diff`, `ls` 등으로 최소 컨텍스트 수집 후 계속 |
 
 ## Cross-Skill 추천
 

@@ -204,22 +204,6 @@ AskUserQuestion을 사용하여 확인한다.
 
 ### Step 5: Update Existing Skills (Subagent)
 
-**5a. 스냅샷 사전 확보 (version-manager):**
-
-업데이트 대상 스킬에 대해 먼저 **`version-manager`** Subagent를 실행하여 현재 버전의 스냅샷을 `.claude/skill-versions/`에 보관한다.
-
-> **사용하는 Subagent**: `agents/version-manager.md`
-> **모드**: snapshot (업데이트 대상 스킬 이름 목록 전달)
-
-이 단계가 완료된 후에만 skill-writer를 실행한다. 이로써 `.claude/skill-versions/` 디렉토리에 대한 쓰기 책임이 version-manager로 단일화되어 race condition이 방지된다.
-
-**version-manager (snapshot) 실패 처리:**
-- 재시도 1회, 동일 입력으로 실행한다.
-- 재실패 시 **skill-writer UPDATE를 실행하지 않고** 사용자에게 "스냅샷 실패로 업데이트를 건너뜁니다" 보고 후 Step 6으로 이동한다.
-- 스냅샷은 롤백을 위한 핵심 경로이므로, 스냅샷 없이 스킬을 덮어쓰지 않는다.
-
-**5b. 스킬 업데이트 (skill-writer):**
-
 사용자가 업데이트를 승인한 각 스킬에 대해 **`skill-writer`** Subagent를 UPDATE 모드로 실행한다.
 
 > **사용하는 Subagent**: `agents/skill-writer.md`
@@ -308,28 +292,7 @@ GRADUATE 시:
 - Phase 특화 검사는 제거하고 범용 검사만 유지
 - 기존 Phase 스킬은 ARCHIVED로 표시
 
-### Step 8: Skill Version Management (Subagent)
-
-**`version-manager`** Subagent를 실행하여 `.claude/skill-versions/`의 스냅샷을 관리한다.
-
-> **사용하는 Subagent**: `agents/version-manager.md`
-
-**전달 항목:**
-- 이번 세션에서 업데이트된 스킬 이름 목록
-- `.claude/verify-history.json`에서 업데이트 후 FAIL이 증가한 스킬이 있으면 롤백 후보로 표시
-
-**Subagent가 수행하는 내용:**
-- 전체 스킬의 버전 이력 조회 및 보고서 생성
-- 업데이트 후 FAIL 증가 스킬에 대해 롤백 제안 (AskUserQuestion으로 확인)
-- 롤백 실행 시 현재 버전도 스냅샷 보관 후 복원
-- 10개 초과 스냅샷 자동 정리
-
-**version-manager (manage) 실패 처리:**
-- 재시도 1회, 동일 입력으로 실행한다.
-- 재실패 시 보고서의 버전 이력 섹션을 "⚠️ 버전 이력 조회 실패"로 표시하고 Step 9로 계속 진행한다.
-- manage 모드는 비핵심 경로이므로, 실패해도 다른 단계에 영향을 주지 않는다.
-
-### Step 9: Validation
+### Step 8: Validation
 
 모든 편집 후:
 
@@ -342,7 +305,7 @@ GRADUATE 시:
 4. 업데이트된 각 스킬에서 탐지 명령어 하나를 드라이런
 5. `.claude/skill-registry.json`의 `skills` 배열과 실제 `.claude/skills/verify-*/SKILL.md` 파일이 일치하는지 확인 (JSON에 있지만 파일 없음 / 파일 있지만 JSON에 없음)
 
-### Step 10: Summary Report
+### Step 9: Summary Report
 
 ```markdown
 ## 세션 스킬 유지보수 보고서
@@ -368,13 +331,11 @@ GRADUATE 시:
 | 에이전트 | 단계 | 상태 |
 |---------|------|------|
 | codebase-scanner | Step 1 | ✅ 성공 |
-| version-manager (snapshot) | Step 5a | ✅ 성공 |
-| skill-writer (UPDATE ×N) | Step 5b | ⚠️ 1/3 실패 (재시도 성공) |
+| skill-writer (UPDATE ×N) | Step 5 | ⚠️ 1/3 실패 (재시도 성공) |
 | skill-writer (CREATE ×M) | Step 6 | ✅ 성공 |
-| version-manager (manage) | Step 8 | ✅ 성공 |
 ```
 
-### Step 11: Cross-Skill Recommendations
+### Step 10: Cross-Skill Recommendations
 
 스킬 유지보수 결과를 분석하여 다른 스킬의 실행을 추천한다.
 
@@ -441,7 +402,5 @@ GRADUATE 시:
 | `.claude/skill-registry.json` | 스킬 레지스트리 SSOT (verify 스킬 목록/메타데이터) |
 | `agents/codebase-scanner.md` | Subagent: 변경사항/스킬갭/계획동기화 통합 분석 |
 | `agents/skill-writer.md` | Subagent: verify 스킬 생성/업데이트 (병렬) |
-| `agents/version-manager.md` | Subagent: 스킬 버전 이력 조회/롤백/정리 |
 | `.claude/verify-history.json` | 검증 실행 이력 JSON (최근 100건 rotate, 스킬 효과성 분석) |
-| `.claude/skill-versions/` | 스킬 버전 스냅샷 디렉토리 (이력 조회/롤백) |
 | `docs/plans/PLAN_*.md` | 계획 문서 (Phase 상태 확인용) |
