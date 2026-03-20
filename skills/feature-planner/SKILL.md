@@ -47,7 +47,7 @@ argument-hint: "[선택: update PLAN_name, complete PLAN_name, list]"
 
 **Phase 삭제:**
 1. 사용자에게 삭제할 Phase를 확인한다
-2. 해당 Phase의 verify 스킬을 ARCHIVED로 변경한다
+2. 해당 Phase의 verify 스킬을 레지스트리에서 삭제하고 파일도 삭제한다
 3. Phase 번호를 재정렬한다
 4. 레지스트리 동기화
 
@@ -64,9 +64,10 @@ argument-hint: "[선택: update PLAN_name, complete PLAN_name, list]"
 1. PLAN 문서의 모든 Phase Status가 ✅ Complete인지 확인한다
    - 미완료 Phase가 있으면 경고하고 중단한다
 2. PLAN 문서의 Status를 "✅ Completed"로 변경한다
-3. 모든 `verify-phase-N-*` 스킬에 대해 GRADUATE를 트리거한다:
-   - 범용 `verify-<name>` 스킬로 변환 (Phase 특화 검사 제거)
-   - 기존 Phase 스킬은 ARCHIVED로 표시
+3. 모든 `verify-phase-N-*` 스킬을 범용 스킬로 통합한다:
+   - `skill-writer` CREATE로 범용 `verify-<name>` 스킬 생성 (Phase 특화 검사 제거)
+   - 기존 `verify-phase-N-*` 스킬의 파일 삭제 + 레지스트리에서 제거
+   - 새 범용 스킬을 레지스트리에 추가
 4. 레지스트리 동기화 (skill-registry.json)
 5. 완료 보고서 출력
 

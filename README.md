@@ -111,20 +111,18 @@ TDD는 권장이 아니라 파이프라인의 필수 단계입니다.
 
 ### 스킬 라이프사이클
 
-```
-CREATED → ACTIVE → GRADUATED → ARCHIVED
-```
+스킬의 상태는 레지스트리 존재 여부로 결정됩니다:
 
-- **CREATED** — feature-planner가 생성. 아직 검증 미실행
-- **ACTIVE** — Phase 개발 중. `verify-phase-N-*` 형태로 동작
-- **GRADUATED** — Phase 완료 후 범용 `verify-*` 스킬로 승격
-- **ARCHIVED** — 더 이상 불필요. 실행 대상에서 자동 제외
+- **레지스트리에 있음** = 활성 (verify-implementation 실행 대상)
+- **레지스트리에 없음** = 비활성 (이력은 git에 보존)
+
+Phase 완료 시 `verify-phase-N-*` 스킬은 범용 `verify-*` 스킬로 **통합**됩니다 (새 스킬 생성 + 기존 삭제). 불필요한 스킬은 레지스트리와 파일에서 삭제되며, 필요 시 `git log`로 복구할 수 있습니다.
 
 ### 자가 진화
 
 스킬은 사용 이력에 따라 진화합니다:
 
-- 연속 PASS 10회 이상 → GRADUATE 후보
+- 연속 PASS 10회 이상 → 범용 스킬로 통합 또는 삭제 후보
 - Skip 비율 50% 이상 → Exceptions 업데이트 제안
 - 3회 연속 Skip된 검사 → False Positive 학습, 자동 면제 제안
 

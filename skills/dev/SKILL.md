@@ -182,8 +182,7 @@ PLAN 문서의 해당 Phase Tasks 섹션을 읽고, 순서대로 수행한다:
 
 **수행 내용:**
 - PLAN 문서 Status를 ✅ Completed로 변경
-- verify-phase-N-* 스킬을 범용 verify-* 스킬로 GRADUATE
-- 기존 Phase 스킬 ARCHIVED
+- verify-phase-N-* 스킬을 범용 verify-* 스킬로 통합 (기존 Phase 스킬 삭제)
 - skill-registry.json 업데이트
 
 ### Step 5: 스킬 유지보수 (manage-skills 자동 호출)
@@ -216,13 +215,13 @@ PLAN 문서의 해당 Phase Tasks 섹션을 읽고, 순서대로 수행한다:
 
 ### 생성된 산출물
 - 계획 문서: `docs/plans/PLAN_auth.md`
-- 생성된 스킬: verify-auth, verify-api (GRADUATED)
+- 생성된 스킬: verify-auth, verify-api (범용 스킬로 통합)
 - 총 커밋: 15개 (TDD 패턴 준수)
 
 ### 스킬 상태
-- GRADUATED: 3개 (Phase 스킬 → 범용 스킬)
-- ARCHIVED: 3개 (기존 Phase 스킬)
-- ACTIVE: 2개 (범용 verify 스킬)
+- 통합: 3개 (Phase 스킬 → 범용 스킬)
+- 삭제: 3개 (기존 Phase 스킬)
+- 활성: 2개 (범용 verify 스킬)
 ```
 
 ## 재개 모드

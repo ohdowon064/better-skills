@@ -31,8 +31,7 @@ argument-hint: "[선택: phase-1, phase-2, ... 또는 --current-phase]"
 
 **스킬 로딩 절차:**
 1. `.claude/skill-registry.json`을 읽는다
-2. `skills` 배열에서 `lifecycle`이 `ACTIVE` 또는 `CREATED`인 항목만 필터한다
-3. `ARCHIVED` 스킬은 제외한다
+2. `skills` 배열의 모든 항목을 실행 대상으로 한다 (레지스트리에 존재 = 활성)
 
 **SSOT를 읽을 수 없는 경우 (파일 없음/파싱 실패):**
 폴백으로 파일 시스템에서 직접 스캔한다:
@@ -319,7 +318,7 @@ AGENT_FAILURE 스킬은 PASS/FAIL 집계에서 제외한다. 전체 스킬이 AG
 
 **자동 제안:**
 
-- 연속 PASS 10회 이상 → "이 스킬은 최근 이슈를 발견하지 못하고 있습니다. GRADUATE 또는 ARCHIVE를 고려하세요."
+- 연속 PASS 10회 이상 → "이 스킬은 최근 이슈를 발견하지 못하고 있습니다. 범용 스킬로 통합하거나 삭제를 고려하세요."
 - Skip 비율 50% 이상 → "이 스킬의 false positive 비율이 높습니다. Exceptions 섹션 업데이트를 권장합니다."
 - FAIL 비율 80% 이상 → "이 스킬이 거의 항상 FAIL합니다. 검사 기준이 너무 엄격하거나 근본적 코드 문제가 있을 수 있습니다."
 
@@ -401,7 +400,6 @@ AskUserQuestion으로 사용자에게 확인한다:
 2. **manage-skills** — 관리 스킬은 검증 대상이 아니다
 3. **feature-planner** — 계획 스킬은 검증 대상이 아니다
 4. **Exceptions에 명시된 케이스** — 각 verify 스킬의 Exceptions 섹션에 나열된 항목은 EXEMPT 처리
-5. **비활성(ARCHIVED) 스킬** — 스킬 라이프사이클이 ARCHIVED인 스킬은 실행하지 않음
 
 ## Related Files
 
