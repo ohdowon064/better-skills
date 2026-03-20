@@ -1,9 +1,9 @@
 {
     "name": "ohdowon064",
     "metadata": {
-        "description": "Autonomous dev pipeline plugin for Claude Code. Spec in → Plan → TDD → Verify → Skill maintenance."
+        "description": "Autonomous dev pipeline plugin for Claude Code. Spec in → Plan → TDD → Verify → Code Review → Skill maintenance."
     },
-    "description": "Autonomous dev pipeline plugin for Claude Code. Spec in → Plan → TDD → Verify → Skill maintenance.",
+    "description": "Autonomous dev pipeline plugin for Claude Code. Spec in → Plan → TDD → Verify → Code Review → Skill maintenance.",
     "owner": {
         "name": "ohdowon064",
         "url": "https://github.com/ohdowon064"
@@ -11,7 +11,7 @@
     "plugins": [
         {
             "name": "better-skills",
-            "description": "Autonomous dev pipeline for Claude Code. Spec in → Plan → TDD → Verify → Skill maintenance, all automated.",
+            "description": "Autonomous dev pipeline for Claude Code. Spec in → Plan → TDD → Verify → Code Review → Skill maintenance, all automated.",
             "source": "./",
             "version": "1.0.0",
             "author": {

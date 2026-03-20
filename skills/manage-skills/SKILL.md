@@ -281,6 +281,8 @@ AskUserQuestion을 사용하여 확인한다.
 2. `.claude/skill-registry.json`에서 항목 제거
 3. 이력은 git에 남으므로 필요 시 `git log`로 복구 가능
 
+> **참고**: INTEGRATE/DELETE는 기계적 작업(기존 스킬 복사+Phase 특화 제거)이므로 code-reviewer를 거치지 않는다. code-reviewer는 사용자가 작성한 기능 코드를 리뷰하는 역할이고, 스킬 메타데이터 변경은 대상이 아니다.
+
 ### Step 8: Validation
 
 모든 편집 후:

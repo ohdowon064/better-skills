@@ -2,6 +2,7 @@
 
 **Status**: 🔄 In Progress
 **Repo Type**: [BRAND_NEW | FRESH_START | CONFIG_ONLY | EXISTING]
+**Feature Start Ref**: [auto-filled by dev Step 2]
 **Started**: YYYY-MM-DD
 **Last Updated**: YYYY-MM-DD
 **Estimated Completion**: YYYY-MM-DD
@@ -12,9 +13,10 @@
 1. ✅ Check off completed task checkboxes
 2. 🧪 Run `/verify-implementation --current-phase` to validate quality gates
 3. ⚠️ Verify ALL quality gate items pass
-4. 📅 Update "Last Updated" date above
-5. 📝 Document learnings in Notes section
-6. ➡️ Only then proceed to next phase
+4. 🔍 Code review runs automatically after verification passes
+5. 📅 Update "Last Updated" date above
+6. 📝 Document learnings in Notes section
+7. ➡️ Only then proceed to next phase
 
 ⛔ **DO NOT skip quality gates or proceed with failing checks**
 
@@ -113,6 +115,7 @@ Write tests FIRST, then implement to make them pass.
 **Goal**: [Specific working functionality this phase delivers]
 **Estimated Time**: X hours
 **Status**: ⏳ Pending
+**Phase Start Ref**: [auto-filled by dev Step 3a]
 **Verify Skill**: `verify-phase-1-<name>`
 
 #### Tasks
@@ -185,10 +188,10 @@ Run: `/verify-implementation phase-1`
 
 ## ✅ Verification Status (Auto-updated by verify-implementation)
 
-| Phase | Verify Skill | Last Run | Result | Issues |
-|-------|-------------|----------|--------|--------|
-| Phase 1 | `verify-phase-1-<name>` | - | ⏳ Not run | - |
-| Phase 2 | `verify-phase-2-<name>` | - | ⏳ Not run | - |
+| Phase | Verify Skill | Last Run | Result | Review | Issues |
+|-------|-------------|----------|--------|--------|--------|
+| Phase 1 | `verify-phase-1-<name>` | - | ⏳ Not run | - | - |
+| Phase 2 | `verify-phase-2-<name>` | - | ⏳ Not run | - | - |
 
 ---
 

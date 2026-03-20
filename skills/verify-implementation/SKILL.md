@@ -135,7 +135,7 @@ grep -l "🔄 In Progress" docs/plans/PLAN_*.md 2>/dev/null
 각 `test-runner`에게 다음 정보를 전달한다:
 1. 해당 verify 스킬의 SKILL.md 경로
 2. 프로젝트 루트 경로
-3. **TDD 검증 모드 활성화** — Phase 스킬인 경우 (`verify-phase-N-*` 패턴), Phase 시작 시점의 git ref를 함께 전달하여 TDD Compliance Check를 수행하도록 한다
+3. **TDD 검증 모드 활성화** — Phase 스킬인 경우 (`verify-phase-N-*` 패턴), PLAN 문서의 해당 Phase `Phase Start Ref` 필드에서 git ref를 읽어 전달하여 TDD Compliance Check를 수행하도록 한다
 
 Subagent가 스킬을 읽고, Workflow의 모든 검사를 수행하여, 각 검사의 PASS/FAIL/EXEMPT 상태와 상세 내용을 반환한다. Phase 스킬인 경우 추가로 TDD 순서 검증 결과도 반환한다.
 

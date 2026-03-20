@@ -18,7 +18,7 @@ argument-hint: "[선택: update PLAN_name, complete PLAN_name, list]"
 
 ## Modes
 
-이 스킬은 3가지 모드로 동작한다. 인수로 모드를 지정한다:
+이 스킬은 4가지 모드로 동작한다. 인수로 모드를 지정한다:
 
 ```
 (인수 없음)              → CREATE 모드 (새 계획 수립)

@@ -6,7 +6,7 @@
 
 | 경로 | 위치 | 설명 |
 |------|------|------|
-| `skills/<core>/SKILL.md` | 플러그인 | 코어 스킬 (dev, feature-planner, verify-implementation, manage-skills) |
+| `skills/<core>/SKILL.md` | 플러그인 | 코어 스킬 (dev, feature-planner, verify-implementation, manage-skills, code-review) |
 | `agents/*.md` | 플러그인 | 서브에이전트 정의 |
 | `.claude/skills/verify-*/SKILL.md` | 사용자 프로젝트 | 런타임에 자동 생성되는 검증 스킬 |
 | `.claude/skill-registry.json` | 사용자 프로젝트 | 스킬 레지스트리 SSOT |

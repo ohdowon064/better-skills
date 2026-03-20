@@ -74,7 +74,7 @@ git이 없으면 파일 시스템 기반으로 수집한다.
 `docs/plans/PLAN_*.md` 파일이 있으면:
 - 각 Phase의 Status 확인 (Pending/In Progress/Complete)
 - 대응하는 verify 스킬 존재 여부 확인
-- GRADUATE/ARCHIVE 대상 식별
+- INTEGRATE/DELETE 대상 식별
 
 ## 결과 형식
 

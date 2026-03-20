@@ -1,6 +1,6 @@
 {
     "name": "better-skills",
-    "description": "Autonomous dev pipeline for Claude Code. Spec in → Plan → TDD → Verify → Skill maintenance, all automated.",
+    "description": "Autonomous dev pipeline for Claude Code. Spec in → Plan → TDD → Verify → Code Review → Skill maintenance, all automated.",
     "version": "1.0.0",
     "author": {
         "name": "ohdowon064",

@@ -77,9 +77,10 @@ claude plugin install github:ohdowon064/better-skills --scope project
 ## 파이프라인 흐름
 
 ```
-기획서 입력 → 계획 수립 → Phase별 TDD 개발 → 검증 → 코드 리뷰 → 완료 처리 → 스킬 정리
-                │              │            │          │
-                │              │            │          └─ code-reviewer
+기획서 입력 → 계획 수립 → Phase별 TDD 개발 → 검증 → 코드 리뷰 → 통합 리뷰 → 완료 처리 → 스킬 정리
+                │              │            │          │          │
+                │              │            │          │          └─ code-reviewer (integration)
+                │              │            │          └─ code-reviewer (phase)
                 │              │            └─ verify-implementation
                 │              └─ RED → GREEN → REFACTOR
                 └─ feature-planner
