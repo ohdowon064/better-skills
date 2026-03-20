@@ -67,13 +67,19 @@ claude plugin install github:ohdowon064/better-skills --scope project
 
 # 스킬 점검
 /manage-skills
+
+# 코드 리뷰
+/code-review
+/code-review --staged
+/code-review --branch feature/auth
 ```
 
 ## 파이프라인 흐름
 
 ```
-기획서 입력 → 계획 수립 → Phase별 TDD 개발 → 검증 → 완료 처리 → 스킬 정리
-                │              │            │
+기획서 입력 → 계획 수립 → Phase별 TDD 개발 → 검증 → 코드 리뷰 → 완료 처리 → 스킬 정리
+                │              │            │          │
+                │              │            │          └─ code-reviewer
                 │              │            └─ verify-implementation
                 │              └─ RED → GREEN → REFACTOR
                 └─ feature-planner
@@ -89,6 +95,7 @@ claude plugin install github:ohdowon064/better-skills --scope project
 | `/feature-planner` | 기능을 3~7개 Phase로 분해. CREATE / UPDATE / COMPLETE 모드 |
 | `/verify-implementation` | verify 스킬을 서브에이전트로 병렬 실행하여 통합 검증 리포트 생성 |
 | `/manage-skills` | 코드 변경에 맞춰 verify 스킬의 드리프트 탐지 및 수정 |
+| `/code-review` | 코드 리뷰. 최근 변경, 특정 경로, staged, 브랜치 diff 지원 |
 
 ## 서브에이전트
 
@@ -98,6 +105,7 @@ claude plugin install github:ohdowon064/better-skills --scope project
 | `plan-writer` | Phase 기반 TDD 계획 문서 작성/수정 | feature-planner |
 | `skill-writer` | verify 스킬 생성/업데이트 (병렬 실행) | feature-planner, manage-skills |
 | `test-runner` | 개별 verify 스킬 실행 + TDD 순서 검증 | verify-implementation |
+| `code-reviewer` | 코드 설계/보안/성능 리뷰 (Phase별 + 통합) | dev, code-review |
 
 ## 주요 개념
 
@@ -154,12 +162,14 @@ better-skills/
 │   │   ├── SKILL.md                    # 계획 수립
 │   │   └── plan-template.md            # 계획 문서 템플릿
 │   ├── verify-implementation/SKILL.md  # 통합 검증 엔진
-│   └── manage-skills/SKILL.md          # 스킬 유지보수
+│   ├── manage-skills/SKILL.md          # 스킬 유지보수
+│   └── code-review/SKILL.md            # 코드 리뷰 (사용자 직접 호출)
 ├── agents/
 │   ├── codebase-scanner.md             # 프로젝트 컨텍스트 분석
 │   ├── plan-writer.md                  # 계획 문서 작성
 │   ├── skill-writer.md                 # verify 스킬 생성/수정
-│   └── test-runner.md                  # 검증 실행 (병렬)
+│   ├── test-runner.md                  # 검증 실행 (병렬)
+│   └── code-reviewer.md               # 코드 리뷰 (설계/보안/성능)
 ```
 
 ### 런타임에 프로젝트에 생성되는 파일
@@ -235,6 +245,7 @@ claude plugin install /path/to/better-skills --scope project
 |------|------|
 | 핵심 경로 (plan-writer) | 재시도 1회, 재실패 시 사용자에게 보고 후 중단 |
 | 병렬 실행 (skill-writer, test-runner) | 성공한 결과 유지, 실패분만 순차 재시도 1회 |
+| 비핵심 경로 (code-reviewer) | 재시도 1회, 재실패 시 건너뛰고 계속 진행 |
 | 폴백 가능 (codebase-scanner) | 직접 `git diff`, `ls` 등으로 최소 컨텍스트 수집 후 계속 |
 
 ## Cross-Skill 추천

@@ -11,7 +11,7 @@ argument-hint: "[기능 설명 또는 기획서 내용]"
 기획서 또는 기능 요구사항 하나를 입력받아 **완성된 기능**이 나올 때까지 전체 개발 파이프라인을 자동으로 실행한다:
 
 ```
-기획서 입력 → 계획 수립 → [Phase별 TDD 개발 → 검증 → 수정]×N → 완료 처리 → 스킬 정리
+기획서 입력 → 계획 수립 → [Phase별 TDD 개발 → 검증 → 코드 리뷰 → 수정]×N → 통합 리뷰 → 완료 처리 → 스킬 정리
 ```
 
 사용자가 개입하는 지점은 **3곳만**:
@@ -109,8 +109,10 @@ PLAN 문서를 읽어 Phase 목록을 추출한다. Status가 ⏳ Pending 또는
     3a. Phase 상태를 🔄 In Progress로 변경
     3b. TDD 개발 실행
     3c. 검증 실행
-    3d. 검증 통과 시 → Phase 상태를 ✅ Complete로 변경, 다음 Phase로
+    3d. 코드 리뷰
+    3e. 검증+리뷰 통과 시 → Phase 상태를 ✅ Complete로 변경, 다음 Phase로
         검증 실패 시 → 수정 후 3c 재실행 (최대 3회)
+        리뷰 REQUEST_CHANGES → 수정 후 3c 재실행
         3회 실패 시 → 사용자에게 블로커 보고, 계속/중단 선택
 ```
 
@@ -157,19 +159,62 @@ PLAN 문서의 해당 Phase Tasks 섹션을 읽고, 순서대로 수행한다:
 **결과 분기:**
 
 ```
-✅ 전체 PASS → Step 3d로 이동
+✅ 전체 PASS → Step 3d로 이동 (코드 리뷰)
 ❌ FAIL 있음 → 사용자에게 액션 확인 (verify-implementation의 Step 4)
                → 수정 적용 후 재검증
-⚠️ WARN만   → 경고 표시 후 Step 3d로 이동 (진행 가능)
+⚠️ WARN만   → 경고 표시 후 Step 3d로 이동 (코드 리뷰, 진행 가능)
 ```
 
-### Step 3d: Phase 완료 처리
+### Step 3d: 코드 리뷰 (code-reviewer 자동 호출)
 
-검증 통과 후:
+verify-implementation이 PASS한 후, `code-reviewer` Subagent를 phase 모드로 실행한다.
+
+> **사용하는 Subagent**: `agents/code-reviewer.md`
+
+**전달 항목:**
+- 모드: phase
+- Phase 번호
+- PLAN 문서 경로
+- Phase 시작 git ref
+
+**결과 분기:**
+
+```
+APPROVE           → Step 3e로 이동
+COMMENT           → 제안 사항을 사용자에게 표시, Step 3e로 이동 (진행 가능)
+REQUEST_CHANGES   → 이슈를 사용자에게 표시하고, AskUserQuestion으로 확인:
+                    1. 자동 수정 — 리뷰 이슈를 반영하여 코드 수정 후 3c 재실행
+                    2. 건너뛰기 — 리뷰 이슈를 무시하고 3e로 이동
+```
+
+### Step 3e: Phase 완료 처리
+
+검증+리뷰 통과 후:
 1. PLAN 문서에서 Phase Status를 ✅ Complete로 변경
 2. Progress Tracking 섹션 업데이트 (퍼센트 갱신)
 3. 다음 Phase가 있으면 → Step 3a로 돌아감
-4. 모든 Phase 완료 시 → Step 4로 이동
+4. 모든 Phase 완료 시 → Step 3.5로 이동
+
+### Step 3.5: 통합 코드 리뷰
+
+모든 Phase가 완료된 후, Step 4 진입 전에 `code-reviewer` Subagent를 integration 모드로 실행한다.
+
+> **사용하는 Subagent**: `agents/code-reviewer.md`
+
+**전달 항목:**
+- 모드: integration
+- PLAN 문서 경로
+- 기능 시작 git ref (Step 2에서 PLAN 생성 직전 커밋)
+
+**결과 분기:**
+
+```
+APPROVE           → Step 4로 이동
+COMMENT           → 제안 사항을 사용자에게 표시, Step 4로 이동
+REQUEST_CHANGES   → 이슈를 사용자에게 표시하고, AskUserQuestion으로 확인:
+                    1. 수정 — 코드 수정 후, 영향받은 Phase 스킬만 재검증
+                    2. 건너뛰기 — Step 4로 이동
+```
 
 ### Step 4: 완료 처리 (feature-planner COMPLETE 자동 호출)
 
@@ -205,11 +250,15 @@ PLAN 문서의 해당 Phase Tasks 섹션을 읽고, 순서대로 수행한다:
 
 ### Phase 실행 결과
 
-| Phase | 상태 | TDD 준수 | 커버리지 | 검증 시도 |
-|-------|------|---------|---------|----------|
-| Phase 1: 모델 설계 | ✅ Complete | ✅ | 92% | 1회 |
-| Phase 2: API 구현 | ✅ Complete | ✅ | 87% | 2회 (1차 FAIL→수정→PASS) |
-| Phase 3: UI 연동 | ✅ Complete | ⚠️ | 81% | 1회 |
+| Phase | 상태 | TDD 준수 | 커버리지 | 검증 시도 | 리뷰 |
+|-------|------|---------|---------|----------|------|
+| Phase 1: 모델 설계 | ✅ Complete | ✅ | 92% | 1회 | APPROVE |
+| Phase 2: API 구현 | ✅ Complete | ✅ | 87% | 2회 | COMMENT (2건) |
+| Phase 3: UI 연동 | ✅ Complete | ⚠️ | 81% | 1회 | APPROVE |
+
+### 통합 코드 리뷰
+- 결과: APPROVE
+- Cross-Phase 이슈: 0건
 
 ### 생성된 산출물
 - 계획 문서: `docs/plans/PLAN_auth.md`
@@ -278,6 +327,18 @@ Phase 2 검증이 3회 연속 실패했습니다.
 |-------------|-------------|
 | test-runner (병렬 N개) | 실패한 스킬을 순차 재시도 1회. 재실패 시 해당 스킬을 SKIP 처리하고, 통합 리포트에 "⚠️ 검증 불가 (에이전트 실패)" 표시. 나머지 스킬 결과로 PASS/FAIL 판정 |
 
+**Step 3d — code-reviewer:**
+
+| 서브에이전트 | 실패 시 전략 |
+|-------------|-------------|
+| code-reviewer (phase) | 재시도 1회. 재실패 시 "⚠️ 코드 리뷰 미완료"로 표시하고 Step 3e로 진행 (비핵심 경로) |
+
+**Step 3.5 — code-reviewer:**
+
+| 서브에이전트 | 실패 시 전략 |
+|-------------|-------------|
+| code-reviewer (integration) | 재시도 1회. 재실패 시 사용자에게 "통합 리뷰 실패 — COMPLETE 진행 여부" 확인 |
+
 **Step 5 — manage-skills 내부:**
 
 | 서브에이전트 | 실패 시 전략 |
@@ -287,8 +348,9 @@ Phase 2 검증이 3회 연속 실패했습니다.
 **공통 원칙:**
 1. 재시도는 최대 1회, 동일 입력으로 실행
 2. 핵심 경로(plan-writer)의 실패는 해당 단계를 중단하고 사용자에게 보고
-3. 병렬 실행 중 부분 실패는 성공한 결과를 유지하고 실패분만 재시도
-4. 모든 실패는 최종 보고서의 "에이전트 실행 상태" 섹션에 기록
+3. 비핵심 경로(code-reviewer phase)의 실패는 건너뛰고 계속 진행
+4. 병렬 실행 중 부분 실패는 성공한 결과를 유지하고 실패분만 재시도
+5. 모든 실패는 최종 보고서의 "에이전트 실행 상태" 섹션에 기록
 
 ## Exceptions
 
@@ -310,4 +372,5 @@ Phase 2 검증이 3회 연속 실패했습니다.
 | `agents/plan-writer.md` | feature-planner가 사용 |
 | `agents/skill-writer.md` | feature-planner/manage-skills가 사용 |
 | `agents/test-runner.md` | verify-implementation이 사용 |
+| `agents/code-reviewer.md` | Step 3d, 3.5: Phase별/통합 코드 리뷰 |
 | `docs/plans/PLAN_*.md` | 계획 문서 (생성/읽기/업데이트) |
