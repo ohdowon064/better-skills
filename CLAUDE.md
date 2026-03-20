@@ -10,7 +10,6 @@
 | `agents/*.md` | 플러그인 | 서브에이전트 정의 |
 | `.claude/skills/verify-*/SKILL.md` | 사용자 프로젝트 | 런타임에 자동 생성되는 검증 스킬 |
 | `.claude/skill-registry.json` | 사용자 프로젝트 | 스킬 레지스트리 SSOT |
-| `.claude/verify-history.json` | 사용자 프로젝트 | 검증 실행 이력 |
 | `docs/plans/PLAN_*.md` | 사용자 프로젝트 | 계획 문서 |
 
 스킬/에이전트 내부에서 다른 플러그인 파일을 참조할 때는 `skills/`, `agents/` 접두사를 사용합니다. 사용자 프로젝트의 런타임 파일을 참조할 때는 `.claude/` 접두사를 사용합니다.

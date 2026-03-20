@@ -265,13 +265,7 @@ AskUserQuestion을 사용하여 확인한다.
 
 ### Step 7: Skill Cleanup
 
-`codebase-scanner`의 계획 문서 동기화 결과와 **`.claude/verify-history.json`** 실행 이력을 바탕으로 스킬 정리를 수행한다.
-
-**실행 이력 기반 판단:**
-- `.claude/verify-history.json`이 존재하면 `entries` 배열을 스킬별로 groupBy하여 효과성 지표를 확인한다
-- 연속 PASS 10회 이상인 스킬 → 범용 스킬로 통합 후 기존 삭제 후보로 제안
-- Skip 비율 50% 이상인 스킬 → Exceptions 업데이트를 함께 제안
-- FAIL 비율 80% 이상인 스킬 → 검사 기준 완화 또는 코드 수정 필요 알림
+`codebase-scanner`의 계획 문서 동기화 결과를 바탕으로 스킬 정리를 수행한다.
 
 **Phase 스킬 통합 (INTEGRATE):**
 
@@ -397,5 +391,4 @@ AskUserQuestion을 사용하여 확인한다.
 | `.claude/skill-registry.json` | 스킬 레지스트리 SSOT (verify 스킬 목록/메타데이터) |
 | `agents/codebase-scanner.md` | Subagent: 변경사항/스킬갭/계획동기화 통합 분석 |
 | `agents/skill-writer.md` | Subagent: verify 스킬 생성/업데이트 (병렬) |
-| `.claude/verify-history.json` | 검증 실행 이력 JSON (최근 100건 rotate, 스킬 효과성 분석) |
 | `docs/plans/PLAN_*.md` | 계획 문서 (Phase 상태 확인용) |

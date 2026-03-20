@@ -118,13 +118,9 @@ TDD는 권장이 아니라 파이프라인의 필수 단계입니다.
 
 Phase 완료 시 `verify-phase-N-*` 스킬은 범용 `verify-*` 스킬로 **통합**됩니다 (새 스킬 생성 + 기존 삭제). 불필요한 스킬은 레지스트리와 파일에서 삭제되며, 필요 시 `git log`로 복구할 수 있습니다.
 
-### 자가 진화
+### Exceptions 자동 제안
 
-스킬은 사용 이력에 따라 진화합니다:
-
-- 연속 PASS 10회 이상 → 범용 스킬로 통합 또는 삭제 후보
-- Skip 비율 50% 이상 → Exceptions 업데이트 제안
-- 3회 연속 Skip된 검사 → False Positive 학습, 자동 면제 제안
+검증에서 이슈를 Skip하면 해당 검사를 스킬의 Exceptions에 추가할지 즉시 확인합니다. 승인하면 스킬이 자동 업데이트되어 동일한 false positive가 반복되지 않습니다.
 
 ### 프로젝트 환경 자동 감지
 
@@ -172,8 +168,7 @@ better-skills/
 your-project/
 ├── .claude/
 │   ├── skills/verify-*/SKILL.md        # 자동 생성된 검증 스킬
-│   ├── skill-registry.json             # 스킬 레지스트리 SSOT
-│   └── verify-history.json             # 검증 실행 이력 (최근 100건)
+│   └── skill-registry.json             # 스킬 레지스트리 SSOT
 └── docs/plans/PLAN_*.md                # 계획 문서
 ```
 

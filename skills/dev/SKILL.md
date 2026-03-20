@@ -153,8 +153,6 @@ PLAN 문서의 해당 Phase Tasks 섹션을 읽고, 순서대로 수행한다:
 **검증 항목:**
 - Quality Gate 전체 (빌드, 테스트, 린트, 타입체크)
 - TDD Compliance (Test-First 순서, R-G-R 증거, REFACTOR 측정, 커버리지)
-- verify-history.json에 이력 기록 (최근 100건 rotate)
-- False positive 학습 제안 (해당 시)
 
 **결과 분기:**
 
