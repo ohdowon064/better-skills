@@ -1,4 +1,5 @@
-# better-skills
+<h1 align="center">better-skills</h1>
+<p align="center"><a href="docs/README_ko.md">한국어 문서 (Korean)</a></p>
 
 An autonomous development pipeline plugin for Claude Code.
 
@@ -7,8 +8,6 @@ Feed it a spec, and it automatically handles planning, TDD development, verifica
 ```
 /dev Implement a user authentication system. I need login, signup, and password reset.
 ```
-
-[한국어 문서 (Korean)](docs/README_ko.md)
 
 ## Requirements
 
