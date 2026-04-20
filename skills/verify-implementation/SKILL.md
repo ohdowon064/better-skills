@@ -242,13 +242,15 @@ AGENT_FAILURE 스킬은 PASS/FAIL 집계에서 제외한다. 전체 스킬이 AG
 `docs/plans/PLAN_*.md`에서 **Verification Status** 섹션을 찾아 업데이트:
 
 ```markdown
-## ✅ Verification Status (Auto-updated by verify-implementation)
+## ✅ Verification Status (Auto-updated by verify-implementation, dev)
 
-| Phase | Verify Skill | Last Run | Result | Issues |
-|-------|-------------|----------|--------|--------|
-| Phase 1 | `verify-phase-1-models` | 2026-03-16 14:30 | ✅ PASS | 0 |
-| Phase 2 | `verify-phase-2-logic` | 2026-03-16 14:30 | ✅ PASS (fixed) | 0 |
+| Phase | Verify Skill | Last Run | Result | Review | Issues |
+|-------|-------------|----------|--------|--------|--------|
+| Phase 1 | `verify-phase-1-models` | 2026-03-16 14:30 | ✅ PASS | - | 0 |
+| Phase 2 | `verify-phase-2-logic` | 2026-03-16 14:30 | ✅ PASS (fixed) | - | 0 |
 ```
+
+verify-implementation은 `Result`, `Last Run`, `Issues` 컬럼만 업데이트한다. `Review` 컬럼은 dev의 Step 3d(코드 리뷰)가 관리하므로 기존 값을 그대로 보존한다.
 
 해당 Phase의 Quality Gate 체크박스도 검증 결과에 따라 업데이트한다.
 

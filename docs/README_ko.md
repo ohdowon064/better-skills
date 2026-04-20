@@ -48,6 +48,21 @@ claude plugin install github:ohdowon064/better-skills --scope project
 2. **FAIL 시 액션 선택** — 자동 수정 / 개별 리뷰 / 건너뛰기
 3. **예상치 못한 블로커** — 해결 방법 결정
 
+### 간단한 작업은 빠르게
+
+```bash
+# 버그 수정
+/quick 로그인 실패 시 에러 메시지가 안 나오는 버그 수정
+
+# 일괄 변경
+/quick src/ 전체에서 userName을 username으로 rename
+
+# 작은 기능 추가
+/quick 다크 모드 토글 버튼 추가
+```
+
+Phase 분해 없이 수정 → 검증 → 커밋까지 자동으로 처리합니다.
+
 ### 개별 스킬 직접 호출
 
 ```bash
@@ -93,6 +108,7 @@ claude plugin install github:ohdowon064/better-skills --scope project
 | 스킬 | 설명 |
 |------|------|
 | `/dev` | 전체 파이프라인 오케스트레이터. 기획서 → 완성된 기능까지 자동 실행 |
+| `/quick` | 경량 작업 실행. 버그 수정, 작은 기능 추가, 일괄 변경을 Phase 없이 처리 |
 | `/feature-planner` | 기능을 3~7개 Phase로 분해. CREATE / UPDATE / COMPLETE 모드 |
 | `/verify-implementation` | verify 스킬을 서브에이전트로 병렬 실행하여 통합 검증 리포트 생성 |
 | `/manage-skills` | 코드 변경에 맞춰 verify 스킬의 드리프트 탐지 및 수정 |
@@ -158,6 +174,7 @@ better-skills/
 │   └── marketplace.json                # 마켓플레이스 등록 정보
 ├── skills/
 │   ├── dev/SKILL.md                    # 파이프라인 오케스트레이터
+│   ├── quick/SKILL.md                  # 경량 작업 실행
 │   ├── feature-planner/
 │   │   ├── SKILL.md                    # 계획 수립
 │   │   └── plan-template.md            # 계획 문서 템플릿

@@ -49,6 +49,21 @@ You only need to intervene at 3 points:
 2. **FAIL action selection** — Auto-fix / individual review / skip
 3. **Unexpected blockers** — Decide on resolution
 
+### Quick tasks without the full pipeline
+
+```bash
+# Bug fix
+/quick Fix login error message not showing on failure
+
+# Bulk rename
+/quick Rename userName to username across src/
+
+# Small feature
+/quick Add dark mode toggle button
+```
+
+No phases, no plan document — just fix, verify, commit.
+
 ### Call individual skills directly
 
 ```bash
@@ -94,6 +109,7 @@ Spec Input → Planning → TDD per Phase → Verification → Code Review → I
 | Skill | Description |
 |-------|-------------|
 | `/dev` | Full pipeline orchestrator. Spec → finished feature, fully automated |
+| `/quick` | Lightweight tasks without phases. Bug fixes, small features, bulk renames |
 | `/feature-planner` | Breaks features into 3-7 phases. CREATE / UPDATE / COMPLETE modes |
 | `/verify-implementation` | Runs verify skills in parallel via subagents, generates unified verification report |
 | `/manage-skills` | Detects and fixes verify skill drift in response to code changes |
@@ -159,6 +175,7 @@ better-skills/
 │   └── marketplace.json                # Marketplace listing
 ├── skills/
 │   ├── dev/SKILL.md                    # Pipeline orchestrator
+│   ├── quick/SKILL.md                  # Lightweight task runner
 │   ├── feature-planner/
 │   │   ├── SKILL.md                    # Planning
 │   │   └── plan-template.md            # Plan document template

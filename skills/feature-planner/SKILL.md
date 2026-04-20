@@ -255,7 +255,8 @@ Phase N: [이름]
 2. 프로젝트 컨텍스트(Step 0)의 감지된 명령어로 Quality Gate의 Validation Commands를 채운다
 3. 각 Phase를 TDD Red-Green-Refactor 구조로 작성한다
 4. Risk Assessment, Rollback Strategy, Verification Status 섹션을 채운다
-5. `docs/plans/PLAN_<feature-name>.md`로 저장한다
+5. 저장 디렉토리를 생성한다: `mkdir -p docs/plans`
+6. `docs/plans/PLAN_<feature-name>.md`로 저장한다
 
 **작성 규칙:**
 - Quality Gate의 검증 명령어는 반드시 프로젝트 컨텍스트에서 감지된 실제 명령어를 사용한다

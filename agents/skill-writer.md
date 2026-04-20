@@ -31,10 +31,61 @@ verify 스킬의 SKILL.md를 생성하거나 기존 스킬을 업데이트한다
 - **Workflow** — 검사 단계 (도구, 파일 경로, PASS/FAIL 기준, 수정 방법)
 - **Exceptions** — 최소 2-3개의 위반이 아닌 케이스
 
+**출력 예시:**
+
+```markdown
+---
+name: verify-phase-1-models
+description: Phase 1 (모델 설계)의 Quality Gate를 검증합니다. 모델/스키마 구현 후 사용.
+---
+
+## Purpose
+- 데이터 모델 구조 검증
+- 필수 필드 존재 여부 확인
+
+## When to Run
+- Phase 1 개발 완료 후
+- 모델 파일 수정 시
+
+## Related Files
+| File | Purpose |
+|------|---------|
+| `src/models/user.ts` | User 모델 정의 |
+| `tests/models/user.test.ts` | User 모델 테스트 |
+
+## Workflow
+### Step 1: 빌드 검증
+- 도구: Bash
+- 명령어: `npm run build`
+- PASS 기준: exit code 0
+- FAIL 시 수정: 컴파일 에러 해결
+
+### Step 2: 테스트 통과
+- 도구: Bash
+- 명령어: `npm test -- --filter models`
+- PASS 기준: 모든 테스트 통과
+- FAIL 시 수정: 실패한 테스트 확인 후 구현 수정
+
+## Exceptions
+- 마이그레이션 파일은 린트 대상에서 제외
+- 생성된 타입 파일(*.d.ts)은 검사하지 않음
+```
+
 **품질 기준:**
 - Related Files의 모든 경로는 `ls`로 존재를 확인한다 (아직 생성 전인 파일은 "(생성 예정)" 표시)
 - Workflow의 탐지 명령어는 실제 파일과 매칭되는 패턴을 사용한다
 - 프로젝트 컨텍스트에서 감지된 실제 명령어를 사용한다
+
+**생성 후 검증:**
+
+SKILL.md 파일을 생성한 후 다음을 확인한다:
+1. 파일 존재 확인: `ls .claude/skills/verify-<name>/SKILL.md`
+2. 필수 섹션 존재 여부 확인:
+```bash
+grep -c "^## Purpose\|^## When to Run\|^## Related Files\|^## Workflow\|^## Exceptions" .claude/skills/verify-<name>/SKILL.md
+# 5개 섹션 모두 존재해야 유효
+```
+3. 누락된 섹션이 있으면 보완 후 다시 확인한다
 
 ### UPDATE 모드
 

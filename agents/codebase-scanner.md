@@ -55,8 +55,16 @@ model: sonnet
 ```bash
 # 커밋되지 않은 변경사항
 git diff HEAD --name-only 2>/dev/null
+
+# base branch 자동 감지
+BASE_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's|refs/remotes/origin/||')
+if [ -z "$BASE_BRANCH" ]; then
+  # 폴백: main → master 순서로 시도
+  git show-ref --verify --quiet refs/heads/main 2>/dev/null && BASE_BRANCH="main" || BASE_BRANCH="master"
+fi
+
 # 브랜치 분기 이후 변경사항
-git diff main...HEAD --name-only 2>/dev/null
+git diff ${BASE_BRANCH}...HEAD --name-only 2>/dev/null
 ```
 
 git이 없으면 파일 시스템 기반으로 수집한다.

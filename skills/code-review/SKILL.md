@@ -13,7 +13,7 @@ argument-hint: "[선택: 파일/디렉토리 경로, --staged, --branch <branch>
 ## Argument Parsing
 
 ```
-(인수 없음)              → 최근 커밋되지 않은 변경 + 스테이징된 변경 리뷰
+(인수 없음)              → 워킹 디렉토리 변경(unstaged) + 스테이징된 변경(staged) 리뷰
 "src/auth/"              → 특정 경로의 최근 변경 리뷰
 "--staged"               → git staged 변경만 리뷰
 "--branch feature/auth"  → 현재 브랜치와 main/master 분기점 이후 전체 diff 리뷰
@@ -26,11 +26,19 @@ argument-hint: "[선택: 파일/디렉토리 경로, --staged, --branch <branch>
 인수에 따라 적절한 git diff 명령어를 실행한다:
 
 ```bash
-# 인수 없음
+# 인수 없음 — unstaged + staged 변경 모두 수집
+# 먼저 커밋이 존재하는지 확인한다
+git rev-parse HEAD 2>/dev/null
+# 커밋이 있으면:
 git diff HEAD
+# 커밋이 없으면 (BRAND_NEW repo):
+git diff          # unstaged 변경
+git diff --staged # staged 변경
+# 두 결과를 합쳐서 리뷰 대상으로 한다
 
 # 특정 경로
 git diff HEAD -- <path>
+# 커밋이 없으면: git diff -- <path> + git diff --staged -- <path>
 
 # --staged
 git diff --staged
